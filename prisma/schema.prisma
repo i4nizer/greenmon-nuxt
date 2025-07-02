@@ -1,0 +1,385 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DB_URL")
+}
+
+enum PinType {
+  Digital
+  Analog
+}
+
+enum PinMode {
+  Unset
+  Input
+  Output
+  Other
+}
+
+enum InputType {
+  Boolean
+  Number
+}
+
+enum ActionStatus {
+  Inactive
+  Delayed
+  Active
+  Discarded
+  Interrupted
+  Timeout
+}
+
+enum ConditionType {
+  Equal
+  Above
+  Below
+}
+
+enum ThresholdOperator {
+  Any
+  All
+}
+
+enum CameraFormat {
+  PIXFORMAT_RG656
+  PIXFORMAT_YUV422
+  PIXFORMAT_YUV420
+  PIXFORMAT_GRAYSCALE
+  PIXFORMAT_JPEG
+  PIXFORMAT_RGB888
+  PIXFORMAT_RAW
+  PIXFORMAT_RGB444
+  PIXFORMAT_RGB555
+}
+
+enum CameraResolution {
+  FRAMESIZE_96X96
+  FRAMESIZE_QQVGA
+  FRAMESIZE_QCIF
+  FRAMESIZE_HQVGA
+  FRAMESIZE_240X240
+  FRAMESIZE_QVGA
+  FRAMESIZE_CIF
+  FRAMESIZE_HVGA
+  FRAMESIZE_VGA
+  FRAMESIZE_SVGA
+  FRAMESIZE_XGA
+  FRAMESIZE_HD
+  FRAMESIZE_SXGA
+  FRAMESIZE_UXGA
+  FRAMESIZE_FHD
+  FRAMESIZE_P_HD
+  FRAMESIZE_P_3MP
+  FRAMESIZE_QXGA
+  FRAMESIZE_QHD
+  FRAMESIZE_WQXGA
+  FRAMESIZE_P_FHD
+  FRAMESIZE_QSXGA
+}
+
+enum HookType {
+  Before
+  During
+  After
+}
+
+enum AlertSeverity {
+  Info
+  Success
+  Warning
+  Error
+}
+
+enum SensorReadPhase {
+  Off
+  Before
+  During
+  After
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  name      String
+  email     String    @unique
+  password  String
+  verified  Boolean   @default(false)
+  disabled  Boolean   @default(false)
+  Greenhouses Greenhouse[]
+  Alerts    Alert[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Greenhouse {
+  id          Int         @id @default(autoincrement())
+  name        String
+  description String?
+  key         String
+  userId      Int
+  User        User        @relation(fields: [userId], references: [id])
+  Cameras     Camera[]
+  MCUs        MCU[]
+  Schedules   Schedule[]
+  Thresholds  Threshold[]
+  Logs        Log[]
+  Alerts      Alert[]
+  Images      Image[]
+  Readings    Reading[]
+  Actions     Action[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model Camera {
+  id           Int              @id @default(autoincrement())
+  key          String           @default("Temporary Key")
+  name         String
+  label        String?
+  detect       Boolean          @default(true)
+  interval     Int
+  format       CameraFormat     @default(PIXFORMAT_JPEG)
+  quality      Int              @default(12)
+  resolution   CameraResolution @default(FRAMESIZE_UXGA)
+  realtime     Boolean          @default(false)
+  disabled     Boolean          @default(true)
+  connected    Boolean          @default(false)
+  greenhouseId Int
+  Greenhouse   Greenhouse       @relation(fields: [greenhouseId], references: [id])
+  Images       Image[]
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+}
+
+model MCU {
+  id           Int         @id @default(autoincrement())
+  name         String
+  label        String?
+  key          String      @default("Temporary Key")
+  connected    Boolean     @default(false)
+  greenhouseId Int
+  Greenhouse   Greenhouse  @relation(fields: [greenhouseId], references: [id])
+  Pins         Pin[]
+  Sensors      Sensor[]
+  Actuators    Actuator[]
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+}
+
+model Pin {
+  id      Int     @id @default(autoincrement())
+  type    PinType @default(Digital)
+  mode    PinMode @default(Unset)
+  number  Int     @default(0)
+  mcuId   Int
+  MCU     MCU     @relation(fields: [mcuId], references: [id])
+  Inputs  Input[]
+  Outputs Output[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([mcuId, type, number])
+}
+
+model Sensor {
+  id        Int              @id @default(autoincrement())
+  name      String
+  label     String?
+  interval  Int              @default(900)
+  lastread  Int              @default(0)
+  readphase SensorReadPhase  @default(Off)
+  disabled  Boolean          @default(true)
+  mcuId     Int
+  MCU       MCU              @relation(fields: [mcuId], references: [id])
+  Outputs   Output[]
+  Hooks     Hook[]
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+}
+
+model Hook {
+  id        Int      @id @default(autoincrement())
+  type      HookType @default(Before)
+  sensorId  Int?
+  Sensor    Sensor?  @relation(fields: [sensorId], references: [id])
+  actionId  Int?
+  Action    Action?  @relation(fields: [actionId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Output {
+  id        Int      @id @default(autoincrement())
+  icon      String   @default("mdi-thermometer")
+  name      String
+  unit      String?
+  pinId     Int?
+  sensorId  Int
+  Pin       Pin?     @relation(fields: [pinId], references: [id])
+  Sensor    Sensor   @relation(fields: [sensorId], references: [id])
+  Conditions Condition[]
+  Readings   Reading[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Actuator {
+  id        Int      @id @default(autoincrement())
+  name      String
+  label     String?
+  disabled  Boolean  @default(true)
+  mcuId     Int
+  MCU       MCU      @relation(fields: [mcuId], references: [id])
+  Inputs    Input[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Input {
+  id         Int        @id @default(autoincrement())
+  icon       String     @default("mdi-fan")
+  name       String
+  type       InputType
+  flag       Int        @default(-1)
+  status     Int        @default(-1)
+  pinId      Int?
+  actuatorId Int
+  Pin        Pin?       @relation(fields: [pinId], references: [id])
+  Actuator   Actuator   @relation(fields: [actuatorId], references: [id])
+  Actions    Action[]
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
+
+model Schedule {
+  id           Int      @id @default(autoincrement())
+  name         String
+  days         Json     @default("[]")
+  times        Json     @default("[]")
+  disabled     Boolean  @default(true)
+  activated    Boolean  @default(false)
+  greenhouseId Int
+  Greenhouse   Greenhouse @relation(fields: [greenhouseId], references: [id])
+  Actions      Action[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Threshold {
+  id           Int               @id @default(autoincrement())
+  name         String
+  operator     ThresholdOperator @default(Any)
+  activated    Boolean           @default(false)
+  disabled     Boolean           @default(true)
+  greenhouseId Int
+  Greenhouse   Greenhouse        @relation(fields: [greenhouseId], references: [id])
+  Actions      Action[]
+  Conditions   Condition[]
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+}
+
+model Condition {
+  id           Int           @id @default(autoincrement())
+  type         ConditionType
+  value        Float
+  satisfied    Boolean       @default(false)
+  outputId     Int
+  thresholdId  Int
+  Output       Output        @relation(fields: [outputId], references: [id])
+  Threshold    Threshold     @relation(fields: [thresholdId], references: [id])
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model Action {
+  id           Int          @id @default(autoincrement())
+  name         String
+  value        Int
+  delay        Int          @default(0)
+  timeout      Int          @default(10000)
+  duration     Int          @default(-1)
+  priority     Int          @default(0)
+  status       ActionStatus @default(Inactive)
+  inputId      Int
+  scheduleId   Int?
+  thresholdId  Int?
+  greenhouseId Int
+  Input        Input        @relation(fields: [inputId], references: [id])
+  Schedule     Schedule?    @relation(fields: [scheduleId], references: [id])
+  Threshold    Threshold?   @relation(fields: [thresholdId], references: [id])
+  Greenhouse   Greenhouse   @relation(fields: [greenhouseId], references: [id])
+  Hooks        Hook[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
+
+model Log {
+  id           Int        @id @default(autoincrement())
+  title        String
+  message      String
+  greenhouseId Int?
+  Greenhouse   Greenhouse? @relation(fields: [greenhouseId], references: [id])
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Alert {
+  id           Int          @id @default(autoincrement())
+  title        String
+  message      String
+  severity     AlertSeverity @default(Info)
+  viewed       Boolean      @default(false)
+  emailed      Boolean      @default(false)
+  greenhouseId Int?
+  userId       Int?
+  Greenhouse   Greenhouse?  @relation(fields: [greenhouseId], references: [id])
+  User         User?        @relation(fields: [userId], references: [id])
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
+
+model Image {
+  id           Int        @id @default(autoincrement())
+  filename     String
+  cameraId     Int?
+  greenhouseId Int?
+  uploadedAt   DateTime?
+  Camera       Camera?    @relation(fields: [cameraId], references: [id])
+  Greenhouse   Greenhouse? @relation(fields: [greenhouseId], references: [id])
+  Detections   Detection[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Reading {
+  id           Int        @id @default(autoincrement())
+  icon         String     @default("mdi-thermometer")
+  name         String
+  unit         String?
+  value        Float      @default(0)
+  outputId     Int?
+  greenhouseId Int?
+  Output       Output?    @relation(fields: [outputId], references: [id])
+  Greenhouse   Greenhouse? @relation(fields: [greenhouseId], references: [id])
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Detection {
+  id         Int      @id @default(autoincrement())
+  class      String
+  confidence Float
+  x          Float
+  y          Float
+  w          Float
+  h          Float
+  imageId    Int
+  Image      Image    @relation(fields: [imageId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
