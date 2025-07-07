@@ -7,23 +7,40 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "prisma:merge": "node prisma/scripts/merge.js",
+    "prisma:migrate": "npx prisma migrate dev",
+    "prisma:generate": "npx prisma generate"
   },
   "dependencies": {
+    "@nuxt/image": "^1.10.0",
     "@pinia/nuxt": "^0.11.1",
     "@prisma/nuxt": "^0.3.0",
     "@tensorflow/tfjs": "^4.22.0",
     "@tensorflow/tfjs-node": "^4.22.0",
+    "@vee-validate/nuxt": "^4.15.1",
+    "@vee-validate/zod": "^4.15.1",
     "axios": "^1.10.0",
+    "bcrypt": "^6.0.0",
     "cloudinary": "^2.7.0",
     "csv-stringify": "^6.5.2",
+    "ejs": "^3.1.10",
+    "ipx": "^3.0.3",
+    "jsonwebtoken": "^9.0.2",
+    "jwt-decode": "^4.0.0",
+    "nodemailer": "^7.0.4",
     "nuxt": "^3.17.6",
-    "nuxt-mail": "^6.0.2",
     "pinia": "^3.0.3",
     "pinia-plugin-persistedstate": "^4.4.1",
     "vue": "^3.5.17",
     "vue-router": "^4.5.1",
     "vuetify-nuxt-module": "^0.18.7",
     "zod": "^3.25.67"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/ejs": "^3.1.5",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/nodemailer": "^6.4.17"
   }
 }
