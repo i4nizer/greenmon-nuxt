@@ -1,10 +1,9 @@
 import bcrypt from "bcrypt"
-import { SendMailOptions } from "nodemailer"
-import prisma from "~/lib/prisma"
-import { safeSendMail } from "~/server/utils/mail"
-import { renderTemplate } from "~/server/utils/template"
-import { createToken } from "~/server/utils/token"
 import { UserSchema } from "~/shared/schema/user"
+import { createToken } from "~/server/utils/token"
+import { safeSendMail } from "~/server/utils/mail"
+import { SendMailOptions } from "nodemailer"
+import { User, Token } from "~/server/models/index"
 
 //
 
@@ -22,22 +21,24 @@ export default defineEventHandler(async (event) => {
     if (!success) return sendError(event, createError({ statusCode: 400, statusMessage: error.message }))
     
     // --- Email must not be taken
-    const emailUser = await prisma.user.findUnique({ where: { email: data.email } })
+    const emailUser = await User.findOne({ where: { email: data.email } })
     if (emailUser != null) return sendError(event, createError({ statusCode: 400, statusMessage: "Email taken." }))
     
     // --- Encryption
     const passwordHash = await bcrypt.hash(data.password, 10)
-    const user = await prisma.user.create({ data: { ...data, password: passwordHash } })
+    const user = await User.create({ ...data, password: passwordHash })
 
     // --- Token
-    const payload = user as { id: number, name: string, email: string }
-    const verifyToken = createToken(payload, "VERIFY")
-    const token = await prisma.token.create({ data: { token: verifyToken, type: "VERIFY", userId: user.id } })
+    const config = useRuntimeConfig(event)
+    const payload = user.dataValues as { id: number, name: string, email: string }
+    const verifyToken = createToken(payload, "Verify")
+    const tokenExpiry = new Date(Date.now() + (config.NUXT_JWT_VERIFY_LIFE * 1000))
+    const token = await Token.create({ value: verifyToken, type: "Verify", expiry: tokenExpiry, userId: user.id })
     
     // --- Email Verification
     const url = `${getRequestProtocol(event)}://${getRequestHost(event)}/auth/verification/verify`
-    const query = `?email=${user.email}&token=${token.token}`
-    const renderResult = await safeRenderTemplate("VERIFICATION", { name: user.name, link: url + query })
+    const query = `?email=${user.email}&token=${token.value}`
+    const renderResult = await safeRenderTemplate("Verification", { name: user.name, link: url + query })
     if (!renderResult.success) return sendError(event, createError({ statusCode: 500, statusMessage: "Failed to send email, render failed." }))
     const mail: SendMailOptions = { to: user.email, subject: "Account Verification - Greenmon", html: renderResult.data }
     event.waitUntil(safeSendMail(mail))

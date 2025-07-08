@@ -1,6 +1,6 @@
-// --- For refresh token validation
+import { Token } from "../models";
 
-import prisma from "~/lib/prisma";
+// --- For refresh token validation
 
 export default defineEventHandler(async (event) => {
     // --- Route Access Check
@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
     if (!refreshToken) throw createError({ statusCode: 401, statusMessage: "Authentication required." })
     
     // --- Find Refresh Token
-    const token = await prisma.token.findFirst({ where: { type: "VERIFY", token: refreshToken } })
+    const token = await Token.findOne({ where: { type: "Verify", value: refreshToken } })
     if (!token) {
         deleteCookie(event, "access-token")
         deleteCookie(event, "refresh-token")
@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
     }
         
     // --- Verify Refresh Token
-    const refreshTokenResult = safeVerifyToken(refreshToken, "REFRESH")
+    const refreshTokenResult = safeVerifyToken(refreshToken, "Refresh")
     if (!refreshTokenResult.success) {
         deleteCookie(event, "access-token")
         deleteCookie(event, "refresh-token")
@@ -40,8 +40,8 @@ export default defineEventHandler(async (event) => {
     // --- Rotate Tokens
     const config = useRuntimeConfig()
     const payload = refreshTokenResult.data as { id: number, name: string, email: string }
-    const newAccessToken = createToken(payload, "ACCESS")
-    const newRefreshToken = createToken(payload, "REFRESH")
+    const newAccessToken = createToken(payload, "Access")
+    const newRefreshToken = createToken(payload, "Refresh")
 
     // --- Server-Client Cookie
     setCookie(event, "access-token", newAccessToken, {
@@ -62,10 +62,8 @@ export default defineEventHandler(async (event) => {
     })
 
     // --- Sync Database
-    await prisma.token.update({
-        data: { token: refreshToken },
-        where: { userId_type: { type: "REFRESH", userId: payload.id } }
+    await Token.update(
+        { value: refreshToken },
+        { where: { type: "Refresh", userId: payload.id }
     })
-
-    console.log("TOKENS ROTATED")
 })

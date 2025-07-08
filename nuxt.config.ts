@@ -8,7 +8,6 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
   modules: [
     "@nuxt/image",
-    "@prisma/nuxt",
     "@pinia/nuxt",
     "@vee-validate/nuxt",
     "vuetify-nuxt-module",
@@ -18,14 +17,17 @@ export default defineNuxtConfig({
       { from: "vuetify/labs/rules", name: "useRules" }
     ]
   },
+  nitro: {
+    preset: "node"
+  },
   runtimeConfig: {
     ...envConfig,
+    public: {
+      NUXT_JWT_RESET_LIFE: envConfig.NUXT_JWT_RESET_LIFE,
+      NUXT_JWT_VERIFY_LIFE: envConfig.NUXT_JWT_VERIFY_LIFE,
+    }
   },
-  prisma: {
-    runMigration: false,
-    installStudio: false,
-    generateClient: false,
-  },
+  
   vuetify: {
     ...vuetifyConfig
   },

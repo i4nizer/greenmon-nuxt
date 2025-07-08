@@ -10,7 +10,7 @@ type Mail = SendMailOptions & {
     callback?: (err: Error | null, info: SentMessageInfo) => void
 }
 type SafeSendMailResult =
-    { data: SentMessageInfo, error?: undefined, success: true }
+    | { data: SentMessageInfo, error?: undefined, success: true }
     | { data?: undefined, error: Error, success: false }
 
 //

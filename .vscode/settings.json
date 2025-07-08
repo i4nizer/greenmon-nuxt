@@ -1,8 +1,17 @@
 {
-    "editor.formatOnSave": true,
-    "prettier.printWidth": 130,
-    "prettier.tabWidth": 4,
-    "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": "always"
-    },
+	"editor.formatOnSave": true,
+	"prettier.printWidth": 130,
+	"prettier.tabWidth": 4,
+	"editor.codeActionsOnSave": {
+		"source.fixAll.eslint": "always"
+	},
+	"[typescript]": {
+		"editor.tabSize": 4,
+		"editor.formatOnSave": true,
+		"editor.defaultFormatter": "esbenp.prettier-vscode",
+		"editor.indentSize": "tabSize",
+		"editor.codeActionsOnSave": {
+			"source.fixAll.ts": "always"
+		}
+	}
 }

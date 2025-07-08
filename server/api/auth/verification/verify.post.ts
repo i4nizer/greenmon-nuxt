@@ -1,6 +1,6 @@
 import type { SendMailOptions } from "nodemailer"
 import { z } from "zod"
-import prisma from "~/lib/prisma"
+import { Token, User } from "~/server/models"
 import { safeVerifyToken } from "~/server/utils/token"
 
 //
@@ -15,21 +15,21 @@ export default defineEventHandler(async (event) => {
     if (!bodyResult.success) return sendError(event, createError({ statusCode: 400, statusMessage: bodyResult.error.message }))
     
     // --- Validate Token
-    const tokenResult = safeVerifyToken(bodyResult.data.token, "VERIFY")
+    const tokenResult = safeVerifyToken(bodyResult.data.token, "Verify")
     if (!tokenResult.success) return sendError(event, createError({ statusCode: 400, statusMessage: tokenResult.error.message }))
     const payload = tokenResult.data as { id: number, name: string, email: string }
     
     // --- Find Token
-    const token = await prisma.token.findFirst({ where: { type: "VERIFY", token: bodyResult.data.token, userId: payload.id } })
+    const token = await Token.findOne({ where: { type: "Verify", value: bodyResult.data.token, userId: payload.id } })
     if (!token) return sendError(event, createError({ statusCode: 400, statusMessage: "Invalid verification token." }))
     
     // --- Verify & Blacklist
     const user = tokenResult.data as { id: number, name: string, email: string }
-    await prisma.user.update({ data: { verified: true }, where: { id: user.id } })
-    await prisma.token.delete({ where: { id: token.id } })
+    await User.update({ verified: true }, { where: { id: user.id } })
+    await Token.destroy({ where: { id: token.id } })
 
     // --- Verify: Inform verification success
-    const renderResult = await safeRenderTemplate("VERIFICATION-SUCCESS", { name: user.name })
+    const renderResult = await safeRenderTemplate("Verification-Success", { name: user.name })
     if (!renderResult.success) return sendError(event, createError({ statusCode: 500, statusMessage: "Failed to send email, render failed." }))
     const mail: SendMailOptions = { to: user.email, subject: "Account Verified - Greenmon", html: renderResult.data }
     event.waitUntil(safeSendMail(mail))

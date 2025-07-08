@@ -1,5 +1,5 @@
 import { z } from "zod"
-import prisma from "~/lib/prisma"
+import { Token, User } from "~/server/models"
 
 //
 
@@ -13,12 +13,12 @@ export default defineEventHandler(async (event) => {
     if (!bodyResult.success) return sendError(event, createError({ statusCode: 400, statusMessage: bodyResult.error.message }))
     
     // --- Find Email User
-    const user = await prisma.user.findUnique({ where: { email: bodyResult.data.email } })
+    const user = await User.findOne({ where: { email: bodyResult.data.email } })
     if (!user) return sendError(event, createError({ statusCode: 400, statusMessage: "Email not registered." }))
     if (!user.verified) return sendError(event, createError({ statusCode: 400, statusMessage: "User not verified." }))
     
     // --- Find Token for its Time
-    let token = await prisma.token.findFirst({ where: { type: "RESET", userId: user.id } })
+    let token = await Token.findOne({ where: { type: "RESET", userId: user.id } })
     if (!token) return sendError(event, createError({ statusCode: 400, statusMessage: "User didn't request for password reset." }))
     
     // --- Time

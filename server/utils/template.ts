@@ -2,7 +2,7 @@ import ejs from "ejs"
 
 //
 
-type TemplateType = "VERIFICATION" | "VERIFICATION-SUCCESS" | "RESET-PASSWORD" | "RESET-PASSWORD-SUCCESS"
+type TemplateType = "Verification" | "Verification-Success" | "Reset-Password" | "Reset-Password-Success"
 type SafeRenderTemplateResult =
     { data: string, error?: undefined, success: true }
     | { data?: undefined, error: Error, success: false }

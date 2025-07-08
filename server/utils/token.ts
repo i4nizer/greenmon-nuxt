@@ -2,35 +2,35 @@ import jwt from "jsonwebtoken"
 
 //
 
-type TokenType = "ACCESS" | "REFRESH" | "RESET" | "VERIFY" | "MCU" | "CAMERA" | "GREENHOUSE"
+type TokenType = "Access" | "Refresh" | "Reset" | "Verify" | "Mcu" | "Camera" | "Greenhouse"
 type SafeVerifyResult =
-    { data: string | jwt.JwtPayload, error?: undefined, success: true }
+    | { data: string | jwt.JwtPayload, error?: undefined, success: true }
     | { data?: undefined, error: jwt.VerifyErrors | Error, success: false }
 
 //
 
 const getLife = (type: TokenType) => { 
     switch (type) {
-        case "ACCESS": return parseInt(process.env.NUXT_JWT_ACCESS_LIFE as string)
-        case "REFRESH": return parseInt(process.env.NUXT_JWT_REFRESH_LIFE as string)
-        case "RESET": return parseInt(process.env.NUXT_JWT_RESET_LIFE as string)
-        case "VERIFY": return parseInt(process.env.NUXT_JWT_VERIFY_LIFE as string)
-        case "MCU": return parseInt(process.env.NUXT_JWT_MCU_LIFE as string)
-        case "CAMERA": return parseInt(process.env.NUXT_JWT_CAMERA_LIFE as string)
-        case "GREENHOUSE": return parseInt(process.env.NUXT_JWT_GREENHOUSE_LIFE as string)
+        case "Access": return parseInt(process.env.NUXT_JWT_ACCESS_LIFE as string)
+        case "Refresh": return parseInt(process.env.NUXT_JWT_REFRESH_LIFE as string)
+        case "Reset": return parseInt(process.env.NUXT_JWT_RESET_LIFE as string)
+        case "Verify": return parseInt(process.env.NUXT_JWT_VERIFY_LIFE as string)
+        case "Mcu": return parseInt(process.env.NUXT_JWT_MCU_LIFE as string)
+        case "Camera": return parseInt(process.env.NUXT_JWT_CAMERA_LIFE as string)
+        case "Greenhouse": return parseInt(process.env.NUXT_JWT_GREENHOUSE_LIFE as string)
         default: return parseInt(process.env.NUXT_JWT_ACCESS_LIFE as string)
     }
 }
 
 const getSecret = (type: TokenType) => {
     switch (type) {
-        case "ACCESS": return process.env.NUXT_JWT_ACCESS_SECRET as string
-        case "REFRESH": return process.env.NUXT_JWT_REFRESH_SECRET as string
-        case "RESET": return process.env.NUXT_JWT_RESET_SECRET as string
-        case "VERIFY": return process.env.NUXT_JWT_VERIFY_SECRET as string
-        case "MCU": return process.env.NUXT_JWT_MCU_SECRET as string
-        case "CAMERA": return process.env.NUXT_JWT_CAMERA_SECRET as string
-        case "GREENHOUSE": return process.env.NUXT_JWT_GREENHOUSE_SECRET as string
+        case "Access": return process.env.NUXT_JWT_ACCESS_SECRET as string
+        case "Refresh": return process.env.NUXT_JWT_REFRESH_SECRET as string
+        case "Reset": return process.env.NUXT_JWT_RESET_SECRET as string
+        case "Verify": return process.env.NUXT_JWT_VERIFY_SECRET as string
+        case "Mcu": return process.env.NUXT_JWT_MCU_SECRET as string
+        case "Camera": return process.env.NUXT_JWT_CAMERA_SECRET as string
+        case "Greenhouse": return process.env.NUXT_JWT_GREENHOUSE_SECRET as string
         default: return process.env.NUXT_JWT_ACCESS_SECRET as string
     }
 }

@@ -59,8 +59,7 @@
                             </span>
                             <div class="bg-grey-lighten-4 rounded w-100 py-4 px-5">
                                 <span class="text-grey-darken-1">Redirecting to sign in page in:</span>
-                                <br><span class="text-grey-darken-3 text-h4 font-weight-bold">5</span>
-                                <!-- <br><span class="text-grey-darken-3 text-h4 font-weight-bold">{{ counter }}</span> -->
+                                <br><span class="text-grey-darken-3 text-h4 font-weight-bold">{{ counter }}</span>
                                 <br><span class="text-grey-darken-1">seconds</span>
                             </div>
                             <span class="text-wrap text-grey-darken-3 text-center">
