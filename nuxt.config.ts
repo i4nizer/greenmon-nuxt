@@ -12,9 +12,6 @@ export default defineNuxtConfig({
     "@vee-validate/nuxt",
     "vuetify-nuxt-module",
   ],
-  imports: {
-    imports: [{ from: "vuetify/labs/rules", name: "useRules" }],
-  },
   nitro: {
     preset: "node",
   },
