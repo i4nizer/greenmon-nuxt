@@ -47,5 +47,5 @@ export default defineEventHandler(async (event) => {
     event.waitUntil(safeSendMail(mail))
 
     // --- Redirect to Display Changed Password
-    return sendRedirect(event, `/auth/password/changed?email=${user.email}`)
+    return sendRedirect(event, `/auth/recovery/changed?email=${user.email}`)
 })

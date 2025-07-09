@@ -105,8 +105,8 @@ const forgotPasswordError = ref(undefined as string | undefined)
 const forgotPassword = async (values: any) => {
     forgotPasswordError.value = undefined
     const emailObj = values as EmailObject
-    await $fetch("/api/auth/password/forgot", { method: "POST", body: emailObj })
-        .then(() => navigateTo(`/auth/password/sent?email=${emailObj.email}`) as void)
+    await $fetch("/api/auth/recovery/forgot", { method: "POST", body: emailObj })
+        .then(() => navigateTo(`/auth/recovery/sent?email=${emailObj.email}`) as void)
         .catch(err => forgotPasswordError.value = err?.statusMessage)
 }
 

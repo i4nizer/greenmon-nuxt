@@ -29,7 +29,8 @@ export default defineEventHandler(async (event) => {
     // --- Missing? Create Reset Token
     if (!token) {
         const config = useRuntimeConfig(event)
-        const payload = user.dataValues as { id: number, name: string, email: string }
+        const { id, name, email } = user.dataValues
+		const payload = { id, name, email }
         const resetToken = createToken(payload, "Reset")
         const tokenExpiry = new Date(Date.now() + config.NUXT_JWT_RESET_LIFE * 1000)
         token = await Token.create({ type: "Reset", value: resetToken, expiry: tokenExpiry, userId: user.id })
@@ -47,7 +48,7 @@ export default defineEventHandler(async (event) => {
 
 
     // --- Send Reset Link
-    const url = `${getRequestProtocol(event)}://${getRequestHost(event)}/auth/password/reset`
+    const url = `${getRequestProtocol(event)}://${getRequestHost(event)}/auth/recovery/reset`
     const query = `?email=${user.email}&token=${token.value}`
     const renderResult = await safeRenderTemplate("Reset-Password", { name: user.name, link: url + query })
     if (!renderResult.success) return sendError(event, createError({ statusCode: 500, statusMessage: "Failed to send email, render failed." }))
@@ -55,5 +56,5 @@ export default defineEventHandler(async (event) => {
     event.waitUntil(safeSendMail(mail))
 
     // --- Redirect to Display Sent
-    return sendRedirect(event, `/auth/password/sent?email=${user.email}`)
+    return sendRedirect(event, `/auth/recovery/sent?email=${user.email}`)
 })

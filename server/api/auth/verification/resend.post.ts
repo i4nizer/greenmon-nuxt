@@ -24,7 +24,8 @@ export default defineEventHandler(async (event) => {
     let token = await Token.findOne({ where: { type: "Verify", userId: user.id } })
     if (!token) {
         const config = useRuntimeConfig(event)
-        const payload = user.dataValues as { id: number, name: string, email: string }
+        const { id, name, email } = user.dataValues
+		const payload = { id, name, email }
         const verifyToken = createToken(payload, "Verify")
         const tokenExpiry = new Date(Date.now() + config.NUXT_JWT_VERIFY_LIFE * 1000)
         token = await Token.create({ value: verifyToken, type: "Verify", expiry: tokenExpiry, userId: user.id })
@@ -42,7 +43,8 @@ export default defineEventHandler(async (event) => {
     // --- Validation: Token could be expired or invalid, either way system created it.
     const tokenResult = safeVerifyToken(token.value, "Verify")
     if (!tokenResult.success) {
-        const payload = user.dataValues as { id: number, name: string, email: string }
+        const { id, name, email } = user.dataValues
+		const payload = { id, name, email }
         const verifyToken = createToken(payload, "Verify")
         const [rows, tokens] = await Token.update(
             { value: verifyToken, type: "Verify", userId: user.id },

@@ -78,7 +78,7 @@
                                 class="text-grey-darken-2"
                             >Go to Sign In</NuxtLink>
                             <NuxtLink 
-                                to="/auth/password/forgot"
+                                to="/auth/recovery/forgot"
                                 class="text-grey-darken-2"
                             >Use a different email.</NuxtLink>
                         </div>
@@ -109,16 +109,16 @@ const counterInterval = ref(null as NodeJS.Timeout | null)
 const counterCallback = () => (counterSec.value = (counterMs.value - Date.now()) / 1000 )
 
 onNuxtReady(() =>
-    $fetch("/api/auth/password/time", { method: "POST", body: { email: email as string } })
+    $fetch("/api/auth/recovery/time", { method: "POST", body: { email: email as string } })
         .then(res => counterMs.value = res.time + 60000)
-        .catch(() => navigateTo("/auth/password/forgot") as void)
+        .catch(() => navigateTo("/auth/recovery/forgot") as void)
 )
 onBeforeMount(() => counterInterval.value = setInterval(counterCallback, 1000))
 onBeforeUnmount(() => counterInterval.value && clearInterval(counterInterval.value))
 
 // --- Resend Logic
 const resendPasswordResetLink = async () => {
-    await $fetch("/api/auth/password/resend", { method: "POST", body: { email: email as string } })
+    await $fetch("/api/auth/recovery/resend", { method: "POST", body: { email: email as string } })
         .then(res => counterMs.value = res.time + 60000)
         .catch(err => resendError.value = err.statusMessage)
 }

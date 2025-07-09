@@ -96,7 +96,7 @@
                     <span>Don't have an account? </span>
                     <NuxtLink to="/auth/sign-up" class="text-grey">Sign Up</NuxtLink>
                     <br>
-                    <NuxtLink to="/auth/password/forgot" class="text-grey">Forgot your password?</NuxtLink>
+                    <NuxtLink to="/auth/recovery/forgot" class="text-grey">Forgot your password?</NuxtLink>
                 </div>
             </VeeForm>
             </v-col>

@@ -24,7 +24,8 @@ export default defineEventHandler(async (event) => {
     
     // --- Token
     const config = useRuntimeConfig(event)
-    const payload = user.dataValues as { id: number, name: string, email: string }
+    const { id, name, email } = user.dataValues
+    const payload = { id, name, email }
     const accessToken = createToken(payload, "Access")
     const refreshToken = createToken(payload, "Refresh")
 

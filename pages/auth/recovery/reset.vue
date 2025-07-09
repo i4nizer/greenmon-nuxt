@@ -108,7 +108,7 @@ import { z } from 'zod';
 // --- Token: Requires Token Query
 const route = useRoute()
 const { email, token } = route.query
-if (!token) await navigateTo("/auth/password/forgot")
+if (!token) await navigateTo("/auth/recovery/forgot")
 
 // --- Types & Validation
 const PasswordSchema = z
@@ -128,8 +128,8 @@ const revealPassword = ref(false)
 const resetPassword = async (values: any) => {
     resetPasswordError.value = undefined
     const passwordObj = { ...(values as PasswordObject), token }
-    await $fetch("/api/auth/password/reset", { method: "POST", body: passwordObj })
-        .then(() => navigateTo(`/auth/password/changed${email ? `?email=${email}` : ''}`) as void)
+    await $fetch("/api/auth/recovery/reset", { method: "POST", body: passwordObj })
+        .then(() => navigateTo(`/auth/recovery/changed${email ? `?email=${email}` : ''}`) as void)
         .catch(err => resetPasswordError.value = err?.statusMessage)
 }
 

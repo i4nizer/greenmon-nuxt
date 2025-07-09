@@ -4,7 +4,7 @@ import vuetifyConfig from "./vuetify.config";
 //
 
 export default defineNuxtConfig({
-  compatibilityDate: '2025-05-15',
+  compatibilityDate: "2025-05-15",
   devtools: { enabled: false },
   modules: [
     "@nuxt/image",
@@ -13,31 +13,28 @@ export default defineNuxtConfig({
     "vuetify-nuxt-module",
   ],
   imports: {
-    imports: [
-      { from: "vuetify/labs/rules", name: "useRules" }
-    ]
+    imports: [{ from: "vuetify/labs/rules", name: "useRules" }],
   },
   nitro: {
-    preset: "node"
+    preset: "node",
   },
   runtimeConfig: {
     ...envConfig,
     public: {
       NUXT_JWT_RESET_LIFE: envConfig.NUXT_JWT_RESET_LIFE,
       NUXT_JWT_VERIFY_LIFE: envConfig.NUXT_JWT_VERIFY_LIFE,
-    }
+    },
   },
-  
   vuetify: {
-    ...vuetifyConfig
+    ...vuetifyConfig,
   },
   veeValidate: {
     autoImports: true,
     componentNames: {
-      Form: 'VeeForm',
-      Field: 'VeeField',
-      FieldArray: 'VeeFieldArray',
-      ErrorMessage: 'VeeErrorMessage',
+      Form: "VeeForm",
+      Field: "VeeField",
+      FieldArray: "VeeFieldArray",
+      ErrorMessage: "VeeErrorMessage",
     },
   },
-})
+});
