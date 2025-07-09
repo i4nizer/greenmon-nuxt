@@ -1,7 +1,7 @@
 <template>
     <v-container class="pa-0" fluid>
         <v-row 
-            class="d-flex flex-xs-column flex-md-row justify-xs-center align-md-center bg-green-lighten-5 w-100 py-5 px-5 px-md-8 px-lg-10" 
+            class="d-flex flex-xs-column flex-md-row justify-xs-center align-md-center bg-green-lighten-5 w-screen py-5 px-5 px-md-8 px-lg-10" 
             style="min-height: calc(100dvh - 64px);"
             align="center"
         >
