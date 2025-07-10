@@ -45,7 +45,9 @@
             
             <!-- Contents -->
             <v-main>
-                <slot></slot>
+                <div class="w-100 h-100 bg-doa-centered">
+                    <slot></slot>
+                </div>
             </v-main>
         </v-app>
     </v-layout>
@@ -80,5 +82,21 @@ const signOut = async () => {
 </script>
 
 <style scoped>
+.bg-doa-centered {
+    position: relative;
+    overflow: hidden;
+}
 
+.bg-doa-centered::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background-image: url("/images/bg-doa.png");
+	background-size: clamp(200px, 40vw, 400px);
+	background-repeat: no-repeat;
+	background-position: center;
+	filter: opacity(0.5);
+	z-index: 0;
+	pointer-events: none;
+}
 </style>
