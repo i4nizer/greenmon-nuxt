@@ -28,22 +28,21 @@ export default defineEventHandler(async (event) => {
 
     // --- Missing? Create Reset Token
     if (!token) {
-        const config = useRuntimeConfig(event)
         const { id, name, email } = user.dataValues
 		const payload = { id, name, email }
         const resetToken = createToken(payload, "Reset")
-        const tokenExpiry = new Date(Date.now() + config.NUXT_JWT_RESET_LIFE * 1000)
-        token = await Token.create({ type: "Reset", value: resetToken, expiry: tokenExpiry, userId: user.id })
+        token = await Token.create({ type: "Reset", value: resetToken, userId: user.id })
     }
 
     // --- Validation: Email request cooldown based on updatedAt.
     const cooldownMs = token.updatedAt.getTime() + 60000
+    token.changed("updatedAt", true)
     if (Date.now() < cooldownMs) {
         const cooldownSec = cooldownMs == 0 ? 0 : ((cooldownMs - Date.now()) / 1000)
         const errorMsg = `Please wait another ${cooldownSec.toFixed(0)}s before trying again.`
         return sendError(event, createError({ statusCode: 400, statusMessage: errorMsg }))
     }
-    else await Token.update({ updatedAt: new Date() }, { where: { id: token.id } })
+    else await token.update({ updatedAt: new Date() })
 
     // --- Send Reset Link
     const url = `${getRequestProtocol(event)}://${getRequestHost(event)}/auth/recovery/reset`

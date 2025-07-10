@@ -29,12 +29,10 @@ export default defineEventHandler(async (event) => {
     const user = await User.create({ ...data, password: passwordHash })
 
     // --- Token
-    const config = useRuntimeConfig(event)
     const { id, name, email } = user.dataValues
 	const payload = { id, name, email }
     const verifyToken = createToken(payload, "Verify")
-    const tokenExpiry = new Date(Date.now() + (config.NUXT_JWT_VERIFY_LIFE * 1000))
-    const token = await Token.create({ value: verifyToken, type: "Verify", expiry: tokenExpiry, userId: user.id })
+    const token = await Token.create({ value: verifyToken, type: "Verify", userId: user.id })
     
     // --- Email Verification
     const url = `${getRequestProtocol(event)}://${getRequestHost(event)}/auth/verification/verify`

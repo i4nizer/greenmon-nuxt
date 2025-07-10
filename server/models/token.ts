@@ -7,7 +7,6 @@ class Token extends Model<InferAttributes<Token>, InferCreationAttributes<Token>
 	declare id: CreationOptional<number>
 	declare type: "Access" | "Refresh" | "Reset" | "Verify" | "Mcu" | "Camera" | "Greenhouse"
 	declare value: string
-	declare expiry: Date
 	declare userId: ForeignKey<number>
 	declare createdAt: CreationOptional<Date>
 	declare updatedAt: CreationOptional<Date>
@@ -29,10 +28,6 @@ const initialize = (sequelize: Sequelize) => {
 			},
 			type: {
 				type: DataTypes.ENUM("Access", "Refresh", "Reset", "Verify", "Mcu", "Camera", "Greenhouse"),
-				allowNull: false,
-			},
-			expiry: {
-				type: DataTypes.DATE,
 				allowNull: false,
 			},
 			userId: {
