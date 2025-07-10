@@ -15,16 +15,15 @@ export default defineEventHandler(async (event) => {
     if (!bodyResult.success) return sendError(event, createError({ statusCode: 400, statusMessage: bodyResult.error.message }))
     
     // --- Validate Token
-    const tokenResult = safeVerifyToken(bodyResult.data.token, "Verify")
+    const tokenResult = safeVerifyToken<{ id: number; name: string; email: string }>(bodyResult.data.token, "Verify")
     if (!tokenResult.success) return sendError(event, createError({ statusCode: 400, statusMessage: tokenResult.error.message }))
-    const payload = tokenResult.data as { id: number, name: string, email: string }
+    const user = tokenResult.data
     
     // --- Find Token
-    const token = await Token.findOne({ where: { type: "Verify", value: bodyResult.data.token, userId: payload.id } })
+    const token = await Token.findOne({ where: { type: "Verify", value: bodyResult.data.token, userId: user.id } })
     if (!token) return sendError(event, createError({ statusCode: 400, statusMessage: "Invalid verification token." }))
     
     // --- Verify & Blacklist
-    const user = tokenResult.data as { id: number, name: string, email: string }
     await User.update({ verified: true }, { where: { id: user.id } })
     await Token.destroy({ where: { id: token.id } })
 

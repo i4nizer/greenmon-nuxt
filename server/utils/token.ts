@@ -3,8 +3,8 @@ import jwt from "jsonwebtoken"
 //
 
 type TokenType = "Access" | "Refresh" | "Reset" | "Verify" | "Mcu" | "Camera" | "Greenhouse"
-type SafeVerifyResult =
-    | { data: string | jwt.JwtPayload, error?: undefined, success: true }
+type SafeVerifyResult<T = any> =
+    | { data: T, error?: undefined, success: true }
     | { data?: undefined, error: jwt.VerifyErrors | Error, success: false }
 
 //
@@ -35,22 +35,22 @@ const getSecret = (type: TokenType) => {
     }
 }
 
-const createToken = (payload: string | Buffer | object, type: TokenType) => {
-    const life = getLife(type)
+const createToken = (payload: string | Buffer | object, type: TokenType, expiry?: number) => {
+    const life = expiry ?? getLife(type)
     const secret = getSecret(type)
     return jwt.sign(payload, secret, { expiresIn: life })
 }
 
-const verifyToken = (token: string, type: TokenType) => {
+const verifyToken = <T = any>(token: string, type: TokenType) => {
     const secret = getSecret(type)
-    return jwt.verify(token, secret)
+    return jwt.verify(token, secret) as T
 }
 
-const safeVerifyToken = (token: string, type: TokenType): SafeVerifyResult => {
+const safeVerifyToken = <T = any>(token: string, type: TokenType): SafeVerifyResult<T> => {
     try {
         const secret = getSecret(type)
         const data = jwt.verify(token, secret)
-        return { data, success: true }
+        return { data: data as T, success: true }
     } catch (error) {
         if (error instanceof jwt.NotBeforeError) return { error: error as jwt.NotBeforeError, success: false }
         else if (error instanceof jwt.TokenExpiredError) return { error: error as jwt.TokenExpiredError, success: false }

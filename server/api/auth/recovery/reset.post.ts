@@ -22,9 +22,9 @@ export default defineEventHandler(async (event) => {
     if (!match) return sendError(event, createError({ statusCode: 400, statusMessage: "Passwords doesn't match." }))
     
     // --- Validate Token
-    const tokenResult = safeVerifyToken(bodyResult.data.token, "Reset")
+    const tokenResult = safeVerifyToken<{ id: number; name: string; email: string }>(bodyResult.data.token, "Reset")
     if (!tokenResult.success) return sendError(event, createError({ statusCode: 400, statusMessage: tokenResult.error.message }))
-    const payload = tokenResult.data as { id: number, name: string, email: string }
+    const payload = tokenResult.data
     
     // --- Find Token
     const token = await Token.findOne({ where: { type: "Reset", value: bodyResult.data.token, userId: payload.id } })
