@@ -6,7 +6,7 @@ import { User, Token, initializeUser, initializeToken } from "../models/index"
 
 export default defineNitroPlugin(async () => {
 	// --- Configurations
-    const { NODE_ENV, NUXT_DB_URL } = envConfig
+    const { NUXT_DB_URL } = envConfig
     const sequelize = new Sequelize(NUXT_DB_URL, { logging: false })
 
 	// --- Initializations
