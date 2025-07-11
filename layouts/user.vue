@@ -54,27 +54,34 @@
 </template>
 
 <script setup lang="ts">
-import { jwtDecode } from "jwt-decode"
+
+//
 
 // --- Display
-
 const { mdAndDown, smAndDown } = useDisplay()
 const drawer = ref(!smAndDown.value)
 const isMobile = computed(() => smAndDown.value)
 const isTablet = computed(() => !isMobile.value && mdAndDown.value)
 
 // --- Require Access Token
-
 const accessToken = useCookie("access-token")
 if (!accessToken.value) await navigateTo("/auth/sign-in")
-const user = jwtDecode<{ name: string, email: string }>(accessToken.value as string)
+
+// --- Sync Auth Store
+const authStore = useAuthStore();
+const { user, hydrated, hydrate, dehydrate } = authStore
+
+const hydrateStore = () => hydrate().catch(() => (navigateTo("/auth/sign-in") && dehydrate()))
+
+onNuxtReady(() => !hydrated && hydrateStore())
+onServerPrefetch(() => hydrateStore())
 
 // --- Sign Out
-
 const signOut = async () => {
     await $fetch("/api/auth/sign-out", { method: "POST" })
-        .catch(err => console.error(err))
+        .catch(err => (import.meta.dev && console.error(err)))
         .finally(() => navigateTo("/auth/sign-in"))
+    dehydrate()
 }
 
 //
