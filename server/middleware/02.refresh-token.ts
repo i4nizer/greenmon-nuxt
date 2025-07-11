@@ -4,12 +4,10 @@ import { Token } from "../models"
 
 export default defineEventHandler(async (event) => {
 	// --- Route Access Check
-	if (event.context?.requiresAuth === undefined) {
-		const url = getRequestURL(event)
-		const requiresAuth = url.pathname.startsWith("/user") || url.pathname.startsWith("/api/user")
-		event.context.requiresAuth = requiresAuth
-	}
-
+	const url = getRequestURL(event)
+	const isApi = url.pathname.startsWith("/api")
+	event.context.requiresAuth ??= url.pathname.startsWith("/user") || url.pathname.startsWith("/api/user")
+	
 	// --- No Checking Required
 	if (!event.context.requiresAuth) return
 	if (event.context?.accessTokenState === "VERIFIED") return
@@ -19,11 +17,12 @@ export default defineEventHandler(async (event) => {
 	if (!refreshToken) throw createError({ statusCode: 401, statusMessage: "Authentication required." })
 
 	// --- Find Refresh Token
-	const token = await Token.findOne({ where: { type: "Verify", value: refreshToken } })
+	const token = await Token.findOne({ where: { type: "Refresh", value: refreshToken } })
 	if (!token) {
 		deleteCookie(event, "access-token")
 		deleteCookie(event, "refresh-token")
-		throw createError({ statusCode: 401, statusMessage: "Authentication error, kindly sign-in again." })
+		if (isApi) throw createError({ statusCode: 401, statusMessage: "Authentication error, kindly sign-in again." })
+		else return sendRedirect(event, "/auth/sign-in")
 	}
 
 	// --- Verify Refresh Token
@@ -34,7 +33,8 @@ export default defineEventHandler(async (event) => {
 
 		const expired = refreshTokenResult.error instanceof jwt.TokenExpiredError
 		const errorMsg = expired ? "Session expired, kindly sign-in again." : "Authentication error, kindly sign-in again."
-		throw createError({ statusCode: 401, statusMessage: errorMsg })
+		if (isApi) throw createError({ statusCode: 401, statusMessage: errorMsg })
+		else return sendRedirect(event, "/auth/sign-in")
 	}
 
 	// --- Rotate Tokens
