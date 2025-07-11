@@ -7,7 +7,7 @@ class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
 	declare id: CreationOptional<number>
 	declare name: string
 	declare email: string
-	declare phone: CreationOptional<number>
+	declare phone: CreationOptional<string>
 	declare password: string
 	declare verified: CreationOptional<boolean>
 	declare disabled: CreationOptional<boolean>
@@ -35,7 +35,7 @@ const initialize = (sequelize: Sequelize) => {
 				unique: "email",
 			},
 			phone: {
-				type: DataTypes.INTEGER,
+				type: DataTypes.STRING,
 				allowNull: true,
 			},
 			password: {
