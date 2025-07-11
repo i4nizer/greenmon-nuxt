@@ -9,10 +9,15 @@ export default defineEventHandler(async (event) => {
     
     // --- Determine Token State
     if (requiresAuth && accessToken) {
-        const { error, success } = safeVerifyToken(accessToken, "Access")
-        if (success) event.context.accessTokenState = "VERIFIED"
-        else event.context.accessTokenState = error instanceof jwt.TokenExpiredError ? "EXPIRED" : "INVALID"
-        if (!success) deleteCookie(event, "access-token")
+        const { data, error, success } = safeVerifyToken(accessToken, "Access")
+        if (success) {
+            event.context.accessTokenState = "VERIFIED"
+            event.context.accessTokenPayload = data
+        }
+        else {
+            event.context.accessTokenState = error instanceof jwt.TokenExpiredError ? "EXPIRED" : "INVALID"
+            deleteCookie(event, "access-token")
+        }
     }
 
     // --- Missing Token

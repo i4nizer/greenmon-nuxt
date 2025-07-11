@@ -64,4 +64,7 @@ export default defineEventHandler(async (event) => {
 
 	// --- Sync Database
 	await Token.update({ value: refreshToken }, { where: { type: "Refresh", userId: payload.id } })
+
+	// --- Attach to the event context
+	event.context.accessTokenPayload = payload
 })
