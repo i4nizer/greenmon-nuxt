@@ -71,7 +71,7 @@ if (!accessToken.value) await navigateTo("/auth/sign-in")
 const authStore = useAuthStore();
 const { user, hydrated, hydrate, dehydrate } = authStore
 
-const hydrateStore = () => hydrate().catch(() => (navigateTo("/auth/sign-in") && dehydrate()))
+const hydrateStore = () => hydrate().catch(async () => (await navigateTo("/auth/sign-in") && dehydrate()))
 
 onNuxtReady(() => !hydrated && hydrateStore())
 onServerPrefetch(() => hydrateStore())
@@ -80,7 +80,7 @@ onServerPrefetch(() => hydrateStore())
 const signOut = async () => {
     await $fetch("/api/auth/sign-out", { method: "POST" })
         .catch(err => (import.meta.dev && console.error(err)))
-        .finally(() => navigateTo("/auth/sign-in"))
+        .finally(async () => await navigateTo("/auth/sign-in"))
     dehydrate()
 }
 
