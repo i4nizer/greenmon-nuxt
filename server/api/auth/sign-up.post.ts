@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt"
-import { UserSchema } from "~/shared/schema/user"
+import { UserSignUpSchema } from "~/shared/schema/user"
 import { createToken } from "~/server/utils/token"
 import { safeSendMail } from "~/server/utils/mail"
 import { SendMailOptions } from "nodemailer"
@@ -7,17 +7,9 @@ import { User, Token } from "~/server/models/index"
 
 //
 
-const SignUpUserSchema = UserSchema.pick({
-    name: true,
-    email: true,
-    password: true,
-})
-
-//
-
 export default defineEventHandler(async (event) => {
     // --- Validation
-    const { data, error, success } = await readValidatedBody(event, SignUpUserSchema.safeParse)
+    const { data, error, success } = await readValidatedBody(event, UserSignUpSchema.safeParse)
     if (!success) return sendError(event, createError({ statusCode: 400, statusMessage: error.message }))
     
     // --- Email must not be taken

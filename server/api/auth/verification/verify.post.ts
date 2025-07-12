@@ -5,13 +5,13 @@ import { safeVerifyToken } from "~/server/utils/token"
 
 //
 
-const VerifySchema = z.object({ token: z.string().jwt() })
+const TokenSchema = z.object({ token: z.string().jwt() })
 
 //
 
 export default defineEventHandler(async (event) => {
     // --- Validation
-    const bodyResult = await readValidatedBody(event, VerifySchema.safeParse)
+    const bodyResult = await readValidatedBody(event, TokenSchema.safeParse)
     if (!bodyResult.success) return sendError(event, createError({ statusCode: 400, statusMessage: bodyResult.error.message }))
     
     // --- Validate Token

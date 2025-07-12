@@ -9,7 +9,6 @@
             <v-col cols="12" md="6" class="pa-0">
                 <div class="d-flex align-center justify-center h-md-screen">
                     <SignInForm 
-                        v-model="user"
                         :error
                         :loading
                         @submit="signIn"
@@ -21,19 +20,20 @@
 </template>
 
 <script setup lang="ts">
+import type { UserSignIn } from '~/shared/schema/user'
 
 //
 
 // --- Data & Logic
-const user = reactive({ email: "", password: "" })
 const error = ref<string>()
 const loading = ref<boolean>()
 
-const signIn = async (data: typeof user) => {
+const signIn = async (data: UserSignIn) => {
     error.value = undefined
     loading.value = true
+    
     await $fetch("/api/auth/sign-in", { method: "POST", body: data })
-        .then(() => navigateTo("/user/greenhouse") as void)
+        .then(async () => await navigateTo("/user/greenhouse"))
         .catch(err => error.value = err?.statusMessage)
         .finally(() => loading.value = false)
 }

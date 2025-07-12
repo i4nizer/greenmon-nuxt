@@ -2,7 +2,6 @@
     <VeeForm
         class="pa-7 w-100 w-sm-75 w-md-100 w-lg-75"
         :validation-schema="validationSchema"
-        :initial-values="{ email: model.email }"
         #="{ meta }"
         @submit="signIn"
     >
@@ -20,7 +19,6 @@
                 class="mt-6"
                 placeholder="example@email.com"
                 aria-autocomplete="both"
-                v-model="model.email"
                 :="field"
                 :error-messages="errorMessage ? [errorMessage] : []"
             ></v-text-field>
@@ -29,7 +27,6 @@
             <v-text-field
                 label="Password"
                 aria-autocomplete="both"
-                v-model="model.password"
                 :="field"
                 :type="showPassword ? 'text' : 'password'"
                 :error-messages="errorMessage ? [errorMessage] : []"
@@ -55,26 +52,22 @@
 </template>
 
 <script setup lang="ts">
-import type { z } from 'zod';
-import { UserSchema } from '~/shared/schema/user';
+import { UserSignInSchema, type UserSignIn } from '~/shared/schema/user';
 
 //
 
-// --- Types & Validation
-const SignInUserSchema = UserSchema.pick({ email: true, password: true })
-const validationSchema = toTypedSchema(SignInUserSchema)
-type SignInUser = z.infer<typeof SignInUserSchema>
+// --- Validation
+const validationSchema = toTypedSchema(UserSignInSchema)
 
 // --- Data Binding
-const emit = defineEmits<{ submit: [user: SignInUser] }>()
-const model = defineModel<SignInUser>({ required: true })
+const emit = defineEmits<{ submit: [user: UserSignIn] }>()
 const props = defineProps<{ error?: string, loading?: boolean }>()
 
 // --- View Password State
 const showPassword = ref(false)
 
 // --- Pass Invoke
-const signIn = (values: any) => emit("submit", values as SignInUser)
+const signIn = (values: any) => emit("submit", values as UserSignIn)
 
 //
 

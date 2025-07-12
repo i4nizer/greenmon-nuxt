@@ -1,25 +1,14 @@
 import type { SendMailOptions } from "nodemailer"
-import { z } from "zod"
 import bcrypt from "bcrypt"
 import { Token, User } from "~/server/models"
-
-//
-
-const ResetPasswordSchema = z.object({
-    password: z.string().min(8),
-    confirm: z.string().min(8),
-    token: z.string().jwt()
-})
+import { UserPasswordResetSchema } from "~/shared/schema/user"
 
 //
 
 export default defineEventHandler(async (event) => {
     // --- Validation
-    const bodyResult = await readValidatedBody(event, ResetPasswordSchema.safeParse)
+    const bodyResult = await readValidatedBody(event, UserPasswordResetSchema.safeParse)
     if (!bodyResult.success) return sendError(event, createError({ statusCode: 400, statusMessage: bodyResult.error.message }))
-    
-    const match = bodyResult.data.confirm === bodyResult.data.password
-    if (!match) return sendError(event, createError({ statusCode: 400, statusMessage: "Passwords doesn't match." }))
     
     // --- Validate Token
     const tokenResult = safeVerifyToken<{ id: number; name: string; email: string }>(bodyResult.data.token, "Reset")

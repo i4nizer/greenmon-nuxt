@@ -27,8 +27,8 @@ if (!email || !token) await navigateTo("/auth/sign-up")
 // --- Verification
 onNuxtReady(() =>
     $fetch("/api/auth/verification/verify", { method: "POST", body: { email: email as string, token: token as string } })
-        .then(res => navigateTo(`/auth/verification/success?email=${email}`) as void)
-        .catch(err => navigateTo(`/auth/verification/failed?email=${email}&reason=${err.statusMessage}`) as void)
+        .then(async (res) => await navigateTo(`/auth/verification/success?email=${email}`))
+        .catch(async (err) => await navigateTo(`/auth/verification/failed?email=${email}&reason=${err.statusMessage}`))
 )
 
 //

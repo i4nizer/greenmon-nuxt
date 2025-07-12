@@ -1,6 +1,7 @@
 <template>
     <VeeForm
         class="pa-7 w-100 w-sm-75 w-md-100 w-lg-75"
+        :initial-values="{ token: props.token }"
         :validation-schema="validationSchema"
         #="{ meta }"
         @submit="resetPassword"
@@ -17,7 +18,6 @@
             <v-text-field
                 label="New Password"
                 aria-autocomplete="both"
-                v-model="model.password"
                 :="field"
                 :type="revealPassword ? 'text' : 'password'"
                 :error-messages="errorMessage ? [errorMessage] : []"
@@ -29,13 +29,15 @@
             <v-text-field
                 label="Confirm Password"
                 aria-autocomplete="both"
-                v-model="model.confirm"
                 :="field"
                 :type="revealPassword ? 'text' : 'password'"
                 :error-messages="errorMessage ? [errorMessage] : []"
                 :append-inner-icon="revealPassword ? 'mdi-eye-off' : 'mdi-eye'"
                 @click:append-inner="revealPassword = !revealPassword"
             ></v-text-field>
+        </VeeField>
+        <VeeField name="token" #="{ field }">
+            <input type="hidden" :value="props.token" :="field">
         </VeeField>
         <v-btn 
             type="submit" 
@@ -52,27 +54,22 @@
 </template>
 
 <script setup lang="ts">
-import z from 'zod'
+import { UserPasswordResetSchema, type UserPasswordReset } from '~/shared/schema/user';
 
 //
 
-// --- Types & Validation
-const PasswordSchema = z
-    .object({ password: z.string().min(8), confirm: z.string().min(8) })
-    .refine((data) => data.confirm === data.password, { message: "Passwords must match.", path: ["confirm"] })
-const validationSchema = toTypedSchema(PasswordSchema)
-type PasswordObject = z.infer<typeof PasswordSchema>
+// --- Validation
+const validationSchema = toTypedSchema(UserPasswordResetSchema)
 
 // --- Data Binding
-const emit = defineEmits<{ submit: [data: PasswordObject] }>()
-const model = defineModel<PasswordObject>({ required: true })
-const props = defineProps<{ error?: string, loading?: boolean }>()
+const emit = defineEmits<{ submit: [data: UserPasswordReset] }>()
+const props = defineProps<{ token: string, error?: string, loading?: boolean }>()
 
 // --- Password View State
 const revealPassword = ref(false)
 
 // --- Pass Invoke
-const resetPassword = (values: any) => emit("submit", values as PasswordObject)
+const resetPassword = (values: any) => emit("submit", values as UserPasswordReset)
 
 //
 

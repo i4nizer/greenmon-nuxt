@@ -45,8 +45,7 @@
 
 // --- Data Binding
 const emit = defineEmits<{ resend: [email?: string] }>()
-const model = defineModel<number>("time", { required: true, default: Date.now() })
-const props = defineProps<{ email?: string, error?: string }>()
+const props = defineProps<{ time?: number, email?: string, error?: string }>()
 
 // --- Resend Counter
 const counterSec = ref(0)
@@ -54,7 +53,7 @@ const counterActive = computed(() => isNaN(counterSec.value) || counterSec.value
 const counterBtnText = computed(() => counterActive.value ? `Resend in ${counterSec.value}s` : 'Resend Verification Email')
 const counterInterval = ref(null as NodeJS.Timeout | null)
 
-const counterCallback = () => (counterSec.value = Math.round((model.value - Date.now()) / 1000))
+const counterCallback = () => (counterSec.value = Math.round(((props.time ?? 0) - Date.now()) / 1000))
 
 onBeforeMount(() => counterInterval.value = setInterval(counterCallback, 1000))
 onBeforeUnmount(() => counterInterval.value && clearInterval(counterInterval.value))

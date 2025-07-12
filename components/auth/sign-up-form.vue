@@ -18,7 +18,6 @@
                 label="Name"
                 class="mt-6"
                 aria-autocomplete="both"
-                v-model="model.name"
                 :="field"
                 :error-messages="errorMessage ? [errorMessage] : []"
             ></v-text-field>
@@ -28,7 +27,6 @@
                 label="Email"
                 placeholder="example@email.com"
                 aria-autocomplete="both"
-                v-model="model.email"
                 :="field"
                 :error-messages="errorMessage ? [errorMessage] : []"
             ></v-text-field>
@@ -37,7 +35,6 @@
             <v-text-field
                 label="Password"
                 aria-autocomplete="both"
-                v-model="model.password"
                 :="field"
                 :type="revealPassword ? 'text' : 'password'"
                 :error-messages="errorMessage ? [errorMessage] : []"
@@ -61,27 +58,23 @@
 </template>
 
 <script setup lang="ts">
-import { z } from "zod";
-import { UserSchema } from '~/shared/schema/user';
+import { UserSignUpSchema, type UserSignUp  } from '~/shared/schema/user';
 import { toTypedSchema } from "@vee-validate/zod"
 
 //
 
-// --- Types & Validation
-const SignUpUserSchema = UserSchema.pick({ name: true, email: true, password: true })
-const validationSchema = toTypedSchema(SignUpUserSchema)
-type SignUpUser = z.infer<typeof SignUpUserSchema>
+// --- Validation
+const validationSchema = toTypedSchema(UserSignUpSchema)
 
 // --- Data Binding
-const emit = defineEmits<{ submit: [user: SignUpUser] }>()
-const model = defineModel<SignUpUser>({ required: true })
+const emit = defineEmits<{ submit: [user: UserSignUp] }>()
 const props = defineProps<{ error?: string, loading?: boolean }>()
 
 // --- View Password State
 const revealPassword = ref(false)
 
 // --- Pass Invoke
-const signUp = (values: any) => emit("submit", values as SignUpUser)
+const signUp = (values: any) => emit("submit", values as UserSignUp)
 
 //
 

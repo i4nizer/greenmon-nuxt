@@ -1,16 +1,12 @@
 import bcrypt from "bcrypt"
-import { UserSchema } from "~/shared/schema/user"
+import { UserSignInSchema } from "~/shared/schema/user"
 import { Token, User } from "~/server/models"
-
-//
-
-const SignInUserSchema = UserSchema.pick({ email: true, password: true })
 
 //
 
 export default defineEventHandler(async (event) => {
     // --- Validation
-    const bodyResult = await readValidatedBody(event, SignInUserSchema.safeParse)
+    const bodyResult = await readValidatedBody(event, UserSignInSchema.safeParse)
     if (!bodyResult.success) return sendError(event, createError({ statusCode: 400, statusMessage: bodyResult.error.message }))
     
     // --- Find & Check User
@@ -31,9 +27,8 @@ export default defineEventHandler(async (event) => {
 
     // --- Refresh Token Create/Update
     const token = await Token.findOne({ where: { type: "Refresh", userId: user.id } })
-    const tokenExpiry = new Date(Date.now() + (config.NUXT_JWT_REFRESH_LIFE * 1000))
     if (token) await Token.update({ value: refreshToken }, { where: { type: "Refresh", userId: user.id } })
-    else await Token.create({ type: "Refresh", value: refreshToken, expiry: tokenExpiry, userId: user.id })
+    else await Token.create({ type: "Refresh", value: refreshToken, userId: user.id })
     
     // --- Server-Client Cookie
     setCookie(event, "access-token", accessToken, {

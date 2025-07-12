@@ -2,7 +2,6 @@
     <VeeForm
         class="pa-7 w-100 w-sm-75 w-md-100 w-lg-75"
         :validation-schema="validationSchema"
-        :initial-values="{ email: $route.query?.email }"
         #="{ meta }"
         @submit="forgotPassword"
     >
@@ -20,7 +19,6 @@
                 class="mt-6"
                 placeholder="example@email.com"
                 aria-autocomplete="both"
-                v-model="model.email"
                 :="field"
                 :error-messages="errorMessage ? [errorMessage] : []"
             ></v-text-field>
@@ -40,22 +38,19 @@
 </template>
 
 <script setup lang="ts">
-import { z } from 'zod';
+import { UserEmailSchema, type UserEmail } from '~/shared/schema/user';
 
 //
 
 // --- Types & Validation
-const EmailSchema = z.object({ email: z.string().email() })
-const validationSchema = toTypedSchema(EmailSchema)
-type EmailObject = z.infer<typeof EmailSchema>
+const validationSchema = toTypedSchema(UserEmailSchema)
 
 // --- Data Binding
-const emit = defineEmits<{ submit: [email: EmailObject] }>()
-const model = defineModel<EmailObject>({ required: true })
+const emit = defineEmits<{ submit: [email: UserEmail] }>()
 const props = defineProps<{ error?: string, loading?: boolean }>()
 
 //
-const forgotPassword = async (values: any) => emit("submit", values as EmailObject)
+const forgotPassword = async (values: any) => emit("submit", values as UserEmail)
 
 //
 

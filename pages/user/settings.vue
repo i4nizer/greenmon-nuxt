@@ -28,6 +28,7 @@
 </template>
 
 <script setup lang="ts">
+import type { UserAccount } from '~/shared/schema/user'
 
 //
 
@@ -43,10 +44,11 @@ watch(authStore.user, nv => Object.assign(user, nv))
 const error = ref<string>()
 const loading = ref<boolean>()
 
-const saveSettings = async (data: any) => {
+const saveSettings = async (data: UserAccount) => {
     error.value = undefined
     loading.value = true
-    await $fetch("/api/user/settings", { method: "POST", body: data })
+    
+    await $fetch("/api/user/account", { method: "POST", body: data })
         .then(res => Object.assign(authStore.user, res.user))
         .catch(err => error.value = err?.statusMessage)
         .finally(() => loading.value = false)

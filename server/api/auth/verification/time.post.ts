@@ -1,15 +1,11 @@
-import { z } from "zod"
 import { Token, User } from "~/server/models"
-
-//
-
-const EmailSchema = z.object({ email: z.string().email() })
+import { UserEmailSchema } from "~/shared/schema/user"
 
 //
 
 export default defineEventHandler(async (event) => {
     // --- Validation
-    const bodyResult = await readValidatedBody(event, EmailSchema.safeParse)
+    const bodyResult = await readValidatedBody(event, UserEmailSchema.safeParse)
     if (!bodyResult.success) return sendError(event, createError({ statusCode: 400, statusMessage: bodyResult.error.message }))
     
     // --- Find Email User
