@@ -16,6 +16,7 @@
                 label="Name"
                 class="mt-6"
                 aria-autocomplete="both"
+                v-model="field.value"
                 :="field"
                 :error-messages="errorMessage ? [errorMessage] : []"
             ></v-text-field>
@@ -26,6 +27,7 @@
                 label="Email"
                 placeholder="example@email.com"
                 aria-autocomplete="both"
+                v-model="field.value"
                 :="field"
                 :error-messages="errorMessage ? [errorMessage] : []"
             ></v-text-field>
@@ -35,6 +37,7 @@
                 label="Phone"
                 placeholder="09105341892"
                 aria-autocomplete="both"
+                v-model="field.value"
                 :="field"
                 :error-messages="errorMessage ? [errorMessage] : []"
             ></v-text-field>

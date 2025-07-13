@@ -18,6 +18,7 @@
                 label="Name"
                 class="mt-6"
                 aria-autocomplete="both"
+                v-model="field.value"
                 :="field"
                 :error-messages="errorMessage ? [errorMessage] : []"
             ></v-text-field>
@@ -27,6 +28,7 @@
                 label="Email"
                 placeholder="example@email.com"
                 aria-autocomplete="both"
+                v-model="field.value"
                 :="field"
                 :error-messages="errorMessage ? [errorMessage] : []"
             ></v-text-field>
@@ -35,6 +37,7 @@
             <v-text-field
                 label="Password"
                 aria-autocomplete="both"
+                v-model="field.value"
                 :="field"
                 :type="revealPassword ? 'text' : 'password'"
                 :error-messages="errorMessage ? [errorMessage] : []"

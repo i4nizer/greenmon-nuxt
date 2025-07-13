@@ -18,6 +18,7 @@
             <v-text-field
                 label="New Password"
                 aria-autocomplete="both"
+                v-model="field.value"
                 :="field"
                 :type="revealPassword ? 'text' : 'password'"
                 :error-messages="errorMessage ? [errorMessage] : []"
@@ -29,6 +30,7 @@
             <v-text-field
                 label="Confirm Password"
                 aria-autocomplete="both"
+                v-model="field.value"
                 :="field"
                 :type="revealPassword ? 'text' : 'password'"
                 :error-messages="errorMessage ? [errorMessage] : []"
