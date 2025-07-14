@@ -6,14 +6,20 @@
 
 <script setup lang="ts">
 
-// --- Route based layout
+//
 
+// --- Route based layout
 const route = useRoute()
-const layout = computed(() =>
-    route.path.startsWith("/auth") ? "auth" :
-    route.path.startsWith("/user") ? "user" :
-    "default"
-)
+const layout = computed(() => {
+    const segments = route.path.split("/")
+    const slen = segments.length
+    const path = route.path
+
+    if (slen <= 1) return "default"
+    else if (path.startsWith("/auth")) return "auth"
+    else if (path.startsWith("/user") && slen == 3) return "user"
+    else return "default"
+})
 
 //
 
