@@ -4,9 +4,11 @@ import {
     User,
     Token,
     Greenhouse,
+    Mcu,
     initializeUser,
     initializeToken,
     initializeGreenhouse,
+    initializeMcu,
 } from "../models/index"
 
 //
@@ -20,6 +22,7 @@ export default defineNitroPlugin(async () => {
 	initializeUser(sequelize)
 	initializeToken(sequelize)
 	initializeGreenhouse(sequelize)
+	initializeMcu(sequelize)
 
 	// --- Relationships: ForeignKeys & Constraints
 	User.hasMany(Token, { foreignKey: "userId", onDelete: "CASCADE" })
@@ -27,9 +30,14 @@ export default defineNitroPlugin(async () => {
     
     Token.belongsTo(User, { foreignKey: "userId" })
 	Token.hasOne(Greenhouse, { foreignKey: "tokenId", onDelete: "CASCADE" })
+	Token.hasOne(Mcu, { foreignKey: "tokenId", onDelete: "CASCADE" })
 
     Greenhouse.belongsTo(User, { foreignKey: "userId" })
     Greenhouse.belongsTo(Token, { foreignKey: "tokenId" })
+    Greenhouse.hasMany(Mcu, { foreignKey: "greenhouseId", onDelete: "CASCADE" })
+
+    Mcu.belongsTo(Token, { foreignKey: "tokenId" })
+    Mcu.belongsTo(Greenhouse, { foreignKey: "greenhouseId" })
     // --- Relationships
 
 	// --- Connection
