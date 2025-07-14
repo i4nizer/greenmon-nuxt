@@ -1,12 +1,6 @@
 import z from "zod"
 import { Greenhouse } from "~/server/models"
-
-//
-
-const PaginationSchema = z.object({
-	limit: z.coerce.number().optional(),
-	offset: z.coerce.number().optional(),
-})
+import { PaginationSchema } from "~/shared/schema/pagination";
 
 //
 
