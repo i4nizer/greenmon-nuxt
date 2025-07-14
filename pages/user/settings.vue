@@ -15,7 +15,7 @@
                     <v-card-subtitle class="text-wrap">Manage your account settings and preferences.</v-card-subtitle>
                     <v-card-text>
                         <UserAccountForm
-                            v-model:user="user"
+                            :user
                             :error
                             :loading
                             @submit="saveSettings"
