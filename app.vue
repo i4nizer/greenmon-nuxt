@@ -2,11 +2,15 @@
     <NuxtLayout :name="layout">
         <NuxtPage />
     </NuxtLayout>
+    <v-snackbar-queue v-model="snackbarStore.queue" />
 </template>
 
 <script setup lang="ts">
 
 //
+
+// --- Just Set Page Title
+useHead({ title: "Greenmon" })
 
 // --- Route based layout
 const route = useRoute()
@@ -21,6 +25,9 @@ const layout = computed(() => {
     else if (path.startsWith("/user/greenhouse") && slen == 5) return "greenhouse"
     else return "default"
 })
+
+// --- Simple Notif Display
+const snackbarStore = useSnackbarStore()
 
 //
 
