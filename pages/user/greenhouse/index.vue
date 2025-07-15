@@ -47,7 +47,7 @@
                 />
             </v-col>
             <!-- Fallback/emptystate when no greenhouse -->
-            <v-col v-if="!greenhouses.length">
+            <v-col v-if="!greenhouses || !greenhouses.length">
                 <v-empty-state
                     icon="mdi-sprout"
                     text="You haven't created any greenhouse yet."
@@ -63,9 +63,14 @@ import type { Greenhouse, GreenhouseCreate, GreenhouseUpdate } from '~/shared/sc
 
 //
 
-// --- Fetch Greenhouses
-const { data } = await useFetch("/api/user/greenhouse", { lazy: true })
-const greenhouses = reactive<Greenhouse[]>([...((data.value as Greenhouse[]) ?? [])])
+// --- Notif
+const { append: appendMsg } = useSnackbarStore()
+
+// --- Fetch Greenhouses    
+const headers = useRequestHeaders(["cookie"])
+const { data: greenhouses, refresh } = await useFetch<Greenhouse[]>("/api/user/greenhouse", { headers, lazy: true })
+
+onBeforeMount(async () => await refresh().catch(() => appendMsg({ text: "Fetch greenhouse failed.", color: "error" })))
 
 // --- Card Loading Indicator
 const greenhouseCardLoadingIds = reactive<number[]>([])
@@ -80,11 +85,8 @@ const createGreenhouse = async (data: GreenhouseCreate) => {
     createLoading.value = true
 
     await $fetch("/api/user/greenhouse", { method: "POST", body: data })
-        .then(res => greenhouses.push({
-            ...res,
-            createdAt: new Date(res.createdAt),
-            updatedAt: new Date(res.updatedAt)
-        }))
+        .then(res => ({ ...res, createdAt: new Date(res.createdAt), updatedAt: new Date(res.updatedAt) }))
+        .then(gh => greenhouses.value?.push(gh))
         .catch(err => createError.value = err?.statusMessage ?? "Something went wrong.")
 
     createDialog.value = false
@@ -103,10 +105,8 @@ const updateGreenhouse = async (data: GreenhouseUpdate) => {
     greenhouseCardLoadingIds.push(data.id)
 
     await $fetch(`/api/user/greenhouse/${data.id}`, { method: "PATCH", body: data })
-        .then(res => {
-            const gh = greenhouses.find(g => g.id == res.id)
-            if (gh) Object.assign(gh, res)
-        })
+        .then(res => ({ gh: greenhouses.value?.find(g => g.id == res.id), res }))
+        .then(({ gh, res }) => gh && Object.assign(gh, res))
         .catch(err => updateError.value = err?.statusMessage ?? "Something went wrong.")
 
     updateDialog.value = false
@@ -132,9 +132,9 @@ const deleteGreenhouse = async (id: number) => {
     greenhouseCardLoadingIds.push(id)
 
     await $fetch(`/api/user/greenhouse/${id}`, { method: "DELETE" })
-        .then(() => greenhouses.findIndex(g => g.id == id))
-        .then(idx => idx != -1 && greenhouses.splice(idx, 1))
-        .catch(console.error)
+        .then(() => greenhouses.value?.findIndex(g => g.id == id))
+        .then(idx => (idx && idx != -1) && greenhouses.value?.splice(idx, 1))
+        .catch(() => appendMsg({ text: "Update greenhouse failed.", color: "error" }))
 
     const idx = greenhouseCardLoadingIds.findIndex(i => i == id)
     if (idx != -1) greenhouseCardLoadingIds.splice(idx, 1)
