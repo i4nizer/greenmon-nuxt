@@ -114,10 +114,8 @@ const deletePin = async (id: number) => {
 
     await $fetch(`/api/user/greenhouse/${gid}/mcu/${mid}/pin/${id}`, { method: "DELETE" })
         .then(() => pins.value && (pins.value = pins.value.filter(p => p.id != id)))
-        // .then(() => pins.value?.findIndex(p => p.id == id))
-        // .then(idx => (idx && idx != -1) && pins.value?.splice(idx, 1))
         .catch(err => appendMsg({ text: err?.statusMessage ?? "Something went wrong.", color: "error" }))
-console.log(pins.value)
+
     pinTableLoading.value = false
 }
 

@@ -10,6 +10,7 @@
                 icon="mdi-pencil"
                 size="small" 
                 class="text-blue"
+                elevation="0"
                 :disabled="loading"
                 @click="emit('edit', item)"
             ></v-btn>
@@ -17,6 +18,7 @@
                 icon="mdi-delete"
                 size="small" 
                 class="ml-1 text-red"
+                elevation="0"
                 :disabled="loading"
                 @click="emit('delete', item.id)"
             ></v-btn>
