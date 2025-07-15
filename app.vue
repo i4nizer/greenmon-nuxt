@@ -23,6 +23,7 @@ const layout = computed(() => {
     else if (path.startsWith("/auth")) return "auth"
     else if (path.startsWith("/user") && slen == 3) return "user"
     else if (path.startsWith("/user/greenhouse") && slen == 5) return "greenhouse"
+    else if (slen == 7 && segments.at(4) == "mcu") return "mcu"
     else return "default"
 })
 

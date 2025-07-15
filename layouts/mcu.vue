@@ -13,7 +13,7 @@
                     <v-list>
                         <v-list-item
                             link
-                            v-toolti="`Return to User Page`"
+                            v-tooltip="`Return to User Page`"
                             to="/user/greenhouse"
                             prepend-icon="mdi-account"
                             :title="user.name"
@@ -24,11 +24,10 @@
                     <v-list>
                         <v-list-item
                             link
-                            v-toolti="`Return to Greenhouse Page`"
-                            prepend-icon="mdi-account"
+                            v-tooltip="`Return to Greenhouse Page`"
+                            prepend-icon="mdi-sprout"
                             :to="`/user/greenhouse/${gid}/mcu`"
-                            :title="user.name"
-                            :subtitle="user.email"
+                            :title="greenhouse?.name"
                         ></v-list-item>
                     </v-list>
                 </template>
@@ -74,6 +73,7 @@
 
 <script setup lang="ts">
 import type { Mcu } from '~/shared/schema/mcu'
+import type { Greenhouse } from '~/shared/schema/greenhouse'
 
 //
 
@@ -87,6 +87,7 @@ const isTablet = computed(() => !isMobile.value && mdAndDown.value)
 const route = useRoute()
 const { gid, mid } = route.params
 const { data: mcu } = await useFetch<Mcu>(`/api/user/greenhouse/${gid}/mcu/${mid}`, { lazy: true })
+const { data: greenhouse } = await useFetch<Greenhouse>(`/api/user/greenhouse/${gid}`, { lazy: true })
 
 // --- Sync Auth Store
 const authStore = useAuthStore();
