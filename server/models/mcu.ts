@@ -14,6 +14,8 @@ class Mcu extends Model<InferAttributes<Mcu>, InferCreationAttributes<Mcu>> {
 	declare updatedAt: CreationOptional<Date>
 }
 
+//
+
 const initialize = (sequelize: Sequelize) => {
 	Mcu.init(
 		{
