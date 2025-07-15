@@ -72,7 +72,7 @@ const { gid } = route.params
 const headers = useRequestHeaders(["cookie"])
 const { data: mcus, refresh } = await useFetch<Mcu[]>(`/api/user/greenhouse/${gid}/mcu`, { headers, lazy: true })
 
-onBeforeMount(async () => await refresh().catch(() => appendMsg({ text: "Fetch greenhouse failed.", color: "error" })))
+onBeforeMount(async () => await refresh().catch(() => appendMsg({ text: "Fetch microcontrollers failed.", color: "error" })))
 
 // --- Card Loading Indicator
 const mcuCardLoadingIds = reactive<number[]>([])
@@ -120,7 +120,7 @@ const updateMcu = async (data: McuUpdate) => {
 // --- Mcu Card Navigations
 const viewMcu = async (id: number) => {
     mcuCardLoadingIds.push(id)
-    await navigateTo(`/user/greenhouse/${gid}/mcu/${id}/dashboard`)
+    await navigateTo(`/user/greenhouse/${gid}/mcu/${id}/pins`)
     const idx = mcuCardLoadingIds.findIndex(i => i == id)
     if (idx != -1) mcuCardLoadingIds.splice(idx, 1)
 }
@@ -136,7 +136,7 @@ const deleteMcu = async (id: number) => {
     await $fetch(`/api/user/greenhouse/${gid}/mcu/${id}`, { method: "DELETE" })
         .then(() => mcus.value?.findIndex(g => g.id == id))
         .then(idx => (idx && idx != -1) && mcus.value?.splice(idx, 1))
-        .catch(console.error)
+        .catch(err => appendMsg({ text: err?.statusMessage ?? "Something went wrong.", color: "error" }))
 
     const idx = mcuCardLoadingIds.findIndex(i => i == id)
     if (idx != -1) mcuCardLoadingIds.splice(idx, 1)
