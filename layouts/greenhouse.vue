@@ -13,6 +13,7 @@
                     <v-list>
                         <v-list-item
                             link
+                            v-tooltip="`Return to User Page`"
                             to="/user/greenhouse"
                             prepend-icon="mdi-account"
                             :title="user.name"
@@ -22,6 +23,7 @@
                 </template>
                 <v-divider></v-divider>
                 <v-list density="compact" nav>
+                    <v-list-subheader>{{ greenhouse?.name }}</v-list-subheader>
                     <v-list-item 
                         link 
                         title="Microcontrollers" 
@@ -60,6 +62,8 @@
 </template>
 
 <script setup lang="ts">
+import type { Greenhouse } from '~/shared/schema/greenhouse'
+
 
 //
 
@@ -69,9 +73,10 @@ const drawer = ref(!smAndDown.value)
 const isMobile = computed(() => smAndDown.value)
 const isTablet = computed(() => !isMobile.value && mdAndDown.value)
 
-// --- Params
+// --- Fetch Routed Greenhouse
 const route = useRoute()
 const { gid } = route.params
+const { data: greenhouse } = await useFetch<Greenhouse>(`/api/user/greenhouse/${gid}`, { lazy: true })
 
 // --- Sync Auth Store
 const authStore = useAuthStore();
