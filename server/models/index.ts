@@ -4,6 +4,7 @@ import { Greenhouse, initialize as initializeGreenhouse } from "./greenhouse"
 import { Mcu, initialize as initializeMcu } from "./mcu"
 import { Pin, initialize as initializePin } from "./pin"
 import { Sensor, initialize as initializeSensor } from "./sensor"
+import { Output, initialize as initializeOutput } from "./output"
 
 //
 
@@ -14,6 +15,7 @@ export {
     Mcu,
     Pin,
     Sensor,
+    Output,
 
     initializeUser,
     initializeToken,
@@ -21,4 +23,5 @@ export {
     initializeMcu,
     initializePin,
     initializeSensor,
+    initializeOutput,
 }
