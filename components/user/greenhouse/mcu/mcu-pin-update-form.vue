@@ -6,7 +6,7 @@
         #="{ meta }"
         @submit="update"
     >
-        <h3>Update Mcu</h3>
+        <h3>Update Pin</h3>
         <span class="text-grey">Please provide the pin details.</span>
         <v-alert
             v-if="error"

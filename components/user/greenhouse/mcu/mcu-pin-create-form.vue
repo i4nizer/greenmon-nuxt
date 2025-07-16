@@ -6,7 +6,7 @@
         #="{ meta }"
         @submit="create"
     >
-        <h3>Create Mcu</h3>
+        <h3>Create Pin</h3>
         <span class="text-grey">Please provide the pin details.</span>
         <v-alert
             v-if="error"
