@@ -13,8 +13,8 @@ const OutputSchema = z.object({
     updatedAt: z.date(),
 })
 
-const OutputCreateSchema = OutputSchema.pick({ icon: true, name: true, unit: true })
-const OutputUpdateSchema = OutputSchema.pick({ id: true, icon: true, name: true, unit: true })
+const OutputCreateSchema = OutputSchema.pick({ icon: true, name: true, unit: true, pinId: true })
+const OutputUpdateSchema = OutputSchema.pick({ id: true, icon: true, name: true, unit: true, pinId: true })
 
 //
 

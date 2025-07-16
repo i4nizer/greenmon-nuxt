@@ -8,7 +8,7 @@ class Output extends Model<InferAttributes<Output>, InferCreationAttributes<Outp
 	declare icon: CreationOptional<string>
 	declare name: string
 	declare unit: CreationOptional<string>
-	declare pinId: CreationOptional<number>
+	declare pinId: ForeignKey<number>
 	declare sensorId: ForeignKey<number>
 	declare createdAt: CreationOptional<Date>
 	declare updatedAt: CreationOptional<Date>
@@ -38,9 +38,9 @@ const initialize = (sequelize: Sequelize) => {
 			},
 			pinId: {
 				type: DataTypes.INTEGER,
-				allowNull: true,
+				allowNull: false,
 				references: { model: "pins", key: "id" },
-				onDelete: "SET NULL",
+				onDelete: "CASCADE",
 			},
 			sensorId: {
 				type: DataTypes.INTEGER,
