@@ -1,12 +1,13 @@
 import envConfig from "~/env.config"
 import { Sequelize } from "sequelize"
 import {
-    User, Token, Greenhouse, Mcu, Pin,
+    User, Token, Greenhouse, Mcu, Pin, Sensor,
     initializeUser,
     initializeToken,
     initializeGreenhouse,
     initializeMcu,
     initializePin,
+    initializeSensor,
 } from "../models/index"
 
 //
@@ -22,6 +23,7 @@ export default defineNitroPlugin(async () => {
 	initializeGreenhouse(sequelize)
 	initializeMcu(sequelize)
 	initializePin(sequelize)
+	initializeSensor(sequelize)
 
 	// --- Relationships: ForeignKeys & Constraints
 	User.hasMany(Token, { foreignKey: "userId", onDelete: "CASCADE" })
@@ -38,8 +40,11 @@ export default defineNitroPlugin(async () => {
     Mcu.belongsTo(Token, { foreignKey: "tokenId" })
     Mcu.belongsTo(Greenhouse, { foreignKey: "greenhouseId" })
     Mcu.hasMany(Pin, { foreignKey: "mcuId", onDelete: "CASCADE" })
+    Mcu.hasMany(Sensor, { foreignKey: "mcuId", onDelete: "CASCADE" })
 
     Pin.belongsTo(Mcu, { foreignKey: "mcuId" })
+
+    Sensor.belongsTo(Mcu, { foreignKey: "mcuId" })
     // --- Relationships
 
 	// --- Connection
