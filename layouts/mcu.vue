@@ -40,6 +40,12 @@
                         prepend-icon="mdi-sine-wave"
                         :to="`/user/greenhouse/${gid}/mcu/${mid}/pins`"
                     ></v-list-item>
+                    <v-list-item 
+                        link 
+                        title="Sensors" 
+                        prepend-icon="mdi-thermometer"
+                        :to="`/user/greenhouse/${gid}/mcu/${mid}/sensors`"
+                    ></v-list-item>
                 </v-list>
                 <template #append>
                     <v-divider></v-divider>
