@@ -16,7 +16,7 @@ const SensorSchema = z.object({
 })
 
 const SensorCreateSchema = SensorSchema.pick({ name: true, label: true, interval: true })
-const SensorUpdateSchema = SensorSchema.pick({ id: true, name: true, label: true, interval: true })
+const SensorUpdateSchema = SensorSchema.pick({ id: true, name: true, label: true, interval: true, disabled: true })
 
 //
 
