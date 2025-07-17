@@ -1,5 +1,5 @@
 import { Mcu } from "~~/server/models"
-import { McuUpdateSchema } from "~~/shared/schema/mcu"
+import { McuSchema, McuUpdateSchema } from "~~/shared/schema/mcu"
 
 //
 
@@ -18,5 +18,5 @@ export default defineEventHandler(async (event) => {
 	await mcu.update({ name, label })
 
 	// --- Filter & Send Mcu
-	return McuUpdateSchema.parse(mcu.dataValues)
+	return McuSchema.parse(mcu.dataValues)
 })

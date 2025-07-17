@@ -1,5 +1,5 @@
 import { Sensor } from "~~/server/models"
-import { SensorUpdateSchema } from "~~/shared/schema/sensor"
+import { SensorSchema, SensorUpdateSchema } from "~~/shared/schema/sensor"
 
 //
 
@@ -17,5 +17,5 @@ export default defineEventHandler(async (event) => {
 	await sensor.update(bodyResult.data)
 
 	// --- Send Sensor
-	return SensorUpdateSchema.parse(sensor.dataValues)
+	return SensorSchema.parse(sensor.dataValues)
 })
