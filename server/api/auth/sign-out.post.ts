@@ -1,4 +1,4 @@
-import { Token } from "~/server/models"
+import { Token } from "~~/server/models"
 
 //
 

@@ -1,5 +1,5 @@
-import { Greenhouse } from "~/server/models"
-import { GreenhouseSchema, GreenhouseUpdateSchema } from "~/shared/schema/greenhouse"
+import { Greenhouse } from "~~/server/models"
+import { GreenhouseSchema, GreenhouseUpdateSchema } from "~~/shared/schema/greenhouse"
 
 //
 
@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
 	const bodyResult = await readValidatedBody(event, validationSchema.safeParse)
 	if (!bodyResult.success) return sendError(event, createError({ statusCode: 400, statusMessage: bodyResult.error.message }))
 	const body = bodyResult.data
-	
+
 	// --- Use param
 	const { gid } = getRouterParams(event)
 

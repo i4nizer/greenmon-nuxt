@@ -1,4 +1,4 @@
-import { Greenhouse } from "~/server/models"
+import { Greenhouse } from "~~/server/models"
 
 //
 

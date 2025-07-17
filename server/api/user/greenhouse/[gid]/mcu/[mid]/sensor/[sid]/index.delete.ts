@@ -1,4 +1,4 @@
-import { Sensor } from "~/server/models"
+import { Sensor } from "~~/server/models"
 
 //
 

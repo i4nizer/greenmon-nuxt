@@ -1,5 +1,5 @@
-import { User } from "~/server/models"
-import { UserAccountSchema } from "~/shared/schema/user"
+import { User } from "~~/server/models"
+import { UserAccountSchema } from "~~/shared/schema/user"
 
 //
 

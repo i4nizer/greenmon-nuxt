@@ -1,4 +1,3 @@
-import envConfig from "~/env.config"
 import { Sequelize } from "sequelize"
 import {
     User, Token, Greenhouse, Mcu, Pin, Sensor, Output,
@@ -14,8 +13,8 @@ import {
 //
 
 export default defineNitroPlugin(async () => {
-	// --- Configurations
-    const { NUXT_DB_URL } = envConfig
+    // --- Configurations
+    const { NUXT_DB_URL } = useRuntimeConfig()
     const sequelize = new Sequelize(NUXT_DB_URL, { logging: false })
 
 	// --- Initializations

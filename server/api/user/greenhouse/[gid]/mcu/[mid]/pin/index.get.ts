@@ -1,5 +1,5 @@
-import { Pin } from "~/server/models"
-import { PaginationSchema } from "~/shared/schema/pagination"
+import { Pin } from "~~/server/models"
+import { PaginationSchema } from "~~/shared/schema/pagination"
 
 //
 

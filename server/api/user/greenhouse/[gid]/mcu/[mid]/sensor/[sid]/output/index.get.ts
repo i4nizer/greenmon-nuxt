@@ -1,5 +1,5 @@
-import { Output } from "~/server/models"
-import { PaginationSchema } from "~/shared/schema/pagination"
+import { Output } from "~~/server/models"
+import { PaginationSchema } from "~~/shared/schema/pagination"
 
 //
 
