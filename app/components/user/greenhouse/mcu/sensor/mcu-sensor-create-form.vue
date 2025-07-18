@@ -4,7 +4,7 @@
 		:initial-values="{ type: 'Digital', mode: 'Unset', number: -1 }"
 		:validation-schema
 		#="{ meta }"
-		@submit="create"
+		@submit="onSubmit"
 	>
 		<h3>Create Sensor</h3>
 		<span class="text-grey">Please provide the sensor details.</span>
@@ -49,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-import { SensorCreateSchema, type SensorCreate } from "~~/shared/schema/sensor"
+import { SensorCreateSchema, type Sensor, type SensorCreate } from "~~/shared/schema/sensor"
 
 //
 
@@ -57,11 +57,32 @@ import { SensorCreateSchema, type SensorCreate } from "~~/shared/schema/sensor"
 const validationSchema = toTypedSchema(SensorCreateSchema)
 
 // --- Data Binding
-const emit = defineEmits<{ submit: [sensor: SensorCreate] }>()
-const props = defineProps<{ error?: string; loading?: boolean }>()
+const emit = defineEmits<{ error: [msg: string], submit: [data: SensorCreate], success: [result: Sensor] }>()
+const props = defineProps<{ gid: number, mid: number }>()
 
-// --- Pass Invoke
-const create = (values: any) => emit("submit", values as SensorCreate)
+// --- State
+const error = ref<string>()
+const loading = ref(false)
+
+// --- Store
+const { createSensor } = useSensorStore()
+
+// --- Handle
+const onSubmit = async (values: any, event: any) => {
+	error.value = undefined
+	loading.value = true
+	emit("submit", values as SensorCreate)
+
+	const { data, error: err, success } = await createSensor(props.gid, props.mid, values)
+	error.value = err
+	loading.value = false
+
+	if (success) {
+		event?.resetForm()
+		emit("success", data)
+	}
+	else emit("error", err)
+}
 
 //
 </script>
