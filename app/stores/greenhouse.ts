@@ -2,10 +2,10 @@ import type { Greenhouse, GreenhouseCreate, GreenhouseUpdate } from "~~/shared/s
 
 //
 
-export const useGreenhouse = (key: string = "greenhouses") => {
+export const useGreenhouseStore = defineStore("greenhouses", () => {
     // --- States
-    const greenhouses = useState<Greenhouse[]>(key, () => [])
-    const hydrated = useState<boolean>(`${key}-hydrated`, () => false)
+    const greenhouses = reactive<Greenhouse[]>([])
+    const hydrated = ref<boolean>(false)
     
     // --- Actions
     /** 
@@ -13,13 +13,13 @@ export const useGreenhouse = (key: string = "greenhouses") => {
      */
     const hydrateGreenhouse = async (force: boolean = false): Promise<SafeResult<Greenhouse[]>> => {
         try {
-            if (hydrated.value && !force) return { data: greenhouses.value, error: undefined }
+            if (hydrated.value && !force) return { data: greenhouses, error: undefined }
             const url = `/api/user/greenhouse`
             const requestFetch = useRequestFetch()
             const res = await requestFetch<Greenhouse[]>(url)
             
-            greenhouses.value.splice(0, greenhouses.value.length)
-            greenhouses.value.push(...res)
+            greenhouses.splice(0, greenhouses.length)
+            greenhouses.push(...res)
 
             hydrated.value = true
             return { data: res, error: undefined }
@@ -35,7 +35,7 @@ export const useGreenhouse = (key: string = "greenhouses") => {
             const url = `/api/user/greenhouse`
             const res = await $fetch<Greenhouse>(url, { method: "POST", body: greenhouse })
             
-            greenhouses.value.push(res)
+            greenhouses.push(res)
             return { data: res, error: undefined }
         }
         catch (err) {
@@ -53,9 +53,9 @@ export const useGreenhouse = (key: string = "greenhouses") => {
             const requestFetch = useRequestFetch()
             const greenhouse = await requestFetch<Greenhouse>(url)
             
-            const olds = greenhouses.value.filter(g => g.id == gid)
+            const olds = greenhouses.filter(g => g.id == gid)
             olds.forEach(s => Object.assign(s, greenhouse))
-            if (olds.length <= 0) greenhouses.value.push(greenhouse)
+            if (olds.length <= 0) greenhouses.push(greenhouse)
 
             return { data: greenhouse, error: undefined }
         }
@@ -70,9 +70,9 @@ export const useGreenhouse = (key: string = "greenhouses") => {
             const url = `/api/user/greenhouse/${greenhouse.id}`
             const res = await $fetch<Greenhouse>(url, { method: "PATCH", body: greenhouse })
 
-            const olds = greenhouses.value.filter((g) => g.id == greenhouse.id)
+            const olds = greenhouses.filter((g) => g.id == greenhouse.id)
             olds.forEach((o) => Object.assign(o, res))
-            if (olds.length <= 0) greenhouses.value.push(res)
+            if (olds.length <= 0) greenhouses.push(res)
             
             return { data: res, error: undefined }
         }
@@ -90,9 +90,9 @@ export const useGreenhouse = (key: string = "greenhouses") => {
             const url = `/api/user/greenhouse/${gid}`
             await $fetch(url, { method: "DELETE" })
                 
-            const data = greenhouses.value.filter((g) => g.id != gid)
-            greenhouses.value.splice(0, greenhouses.value.length)
-            greenhouses.value.push(...data)
+            const data = greenhouses.filter((g) => g.id != gid)
+            greenhouses.splice(0, greenhouses.length)
+            greenhouses.push(...data)
 
             return { data: undefined, error: undefined }
         }
@@ -111,4 +111,4 @@ export const useGreenhouse = (key: string = "greenhouses") => {
         updateGreenhouse,
         deleteGreenhouse,
     }
-}
+})

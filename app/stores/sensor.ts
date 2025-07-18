@@ -2,10 +2,10 @@ import type { Sensor, SensorCreate, SensorUpdate } from "~~/shared/schema/sensor
 
 //
 
-export const useSensor = (key: string = "sensors") => {
+export const useSensorStore = defineStore("sensors", () => {
     // --- States
-    const sensors = useState<Sensor[]>(key, () => [])
-    const hydrated = useState<boolean>(`${key}-hydrated`, () => false)
+    const sensors = reactive<Sensor[]>([])
+    const hydrated = ref<boolean>(false)
     
     // --- Actions
     /** 
@@ -15,13 +15,13 @@ export const useSensor = (key: string = "sensors") => {
      */
     const hydrateSensor = async (gid: number, mid?: number, force: boolean = false): Promise<SafeResult<Sensor[]>> => {
         try {
-            if (hydrated.value && !force) return { data: sensors.value, error: undefined }
+            if (hydrated.value && !force) return { data: sensors, error: undefined }
             const url = `/api/user/greenhouse/${gid}/mcu` + (mid ? `/${mid}` : '') + '/sensor'
             const requestFetch = useRequestFetch()
             const res = await requestFetch<Sensor[]>(url)
             
-            sensors.value.splice(0, sensors.value.length)
-            sensors.value.push(...res)
+            sensors.splice(0, sensors.length)
+            sensors.push(...res)
 
             hydrated.value = true
             return { data: res, error: undefined }
@@ -41,7 +41,7 @@ export const useSensor = (key: string = "sensors") => {
             const url = `/api/user/greenhouse/${gid}/mcu/${mid}/sensor`
             const res = await $fetch<Sensor>(url, { method: "POST", body: sensor })
 			
-            sensors.value.push(res)
+            sensors.push(res)
             return { data: res, error: undefined }
         }
         catch (err) {
@@ -61,9 +61,9 @@ export const useSensor = (key: string = "sensors") => {
             const requestFetch = useRequestFetch()
             const sensor = await requestFetch<Sensor>(url)
             
-            const olds = sensors.value.filter(s => s.id == sid)
+            const olds = sensors.filter(s => s.id == sid)
             olds.forEach(s => Object.assign(s, sensor))
-            if (olds.length <= 0) sensors.value.push(sensor)
+            if (olds.length <= 0) sensors.push(sensor)
 
             return { data: sensor, error: undefined }
         }
@@ -82,9 +82,9 @@ export const useSensor = (key: string = "sensors") => {
             const url = `/api/user/greenhouse/${gid}/mcu/${mid}/sensor/${sensor.id}`
             const res = await $fetch<Sensor>(url, { method: "PATCH", body: sensor })
 
-            const olds = sensors.value.filter((s) => s.id == sensor.id)
+            const olds = sensors.filter((s) => s.id == sensor.id)
             olds.forEach((o) => Object.assign(o, res))
-            if (olds.length <= 0) sensors.value.push(res)
+            if (olds.length <= 0) sensors.push(res)
             
             return { data: res, error: undefined }
         }
@@ -104,9 +104,9 @@ export const useSensor = (key: string = "sensors") => {
             const url = `/api/user/greenhouse/${gid}/mcu/${mid}/sensor/${sid}`
             await $fetch(url, { method: "DELETE" })
 				
-            const data = sensors.value.filter((s) => s.id != sid)
-            sensors.value.splice(0, sensors.value.length)
-            sensors.value.push(...data)
+            const data = sensors.filter((s) => s.id != sid)
+            sensors.splice(0, sensors.length)
+            sensors.push(...data)
 
             return { data: undefined, error: undefined }
         }
@@ -125,4 +125,4 @@ export const useSensor = (key: string = "sensors") => {
         updateSensor,
         deleteSensor,
     }
-}
+})

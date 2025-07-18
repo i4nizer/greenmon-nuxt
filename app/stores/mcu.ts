@@ -2,10 +2,10 @@ import type { Mcu, McuCreate, McuUpdate } from "~~/shared/schema/mcu"
 
 //
 
-export const useMcu = (key: string = "mcus") => {
+export const useMcuStore = defineStore("mcus", () => {
     // --- States
-    const mcus = useState<Mcu[]>(key, () => [])
-    const hydrated = useState<boolean>(`${key}-hydrated`, () => false)
+    const mcus = reactive<Mcu[]>([])
+    const hydrated = ref<boolean>(false)
     
     // --- Actions
     /** 
@@ -14,13 +14,13 @@ export const useMcu = (key: string = "mcus") => {
      */
     const hydrateMcu = async (gid?: number, force: boolean = false): Promise<SafeResult<Mcu[]>> => {
         try {
-            if (hydrated.value && !force) return { data: mcus.value, error: undefined }
+            if (hydrated.value && !force) return { data: mcus, error: undefined }
             const url = `/api/user/greenhouse` + (gid ? `/${gid}` : '') + '/mcu'
             const requestFetch = useRequestFetch()
             const res = await requestFetch<Mcu[]>(url)
             
-            mcus.value.splice(0, mcus.value.length)
-            mcus.value.push(...res)
+            mcus.splice(0, mcus.length)
+            mcus.push(...res)
 
             hydrated.value = true
             return { data: res, error: undefined }
@@ -39,7 +39,7 @@ export const useMcu = (key: string = "mcus") => {
             const url = `/api/user/greenhouse/${gid}/mcu`
             const res = await $fetch<Mcu>(url, { method: "POST", body: mcu })
             
-            mcus.value.push(res)
+            mcus.push(res)
             return { data: res, error: undefined }
         }
         catch (err) {
@@ -58,9 +58,9 @@ export const useMcu = (key: string = "mcus") => {
             const requestFetch = useRequestFetch()
             const mcu = await requestFetch<Mcu>(url)
             
-            const olds = mcus.value.filter(m => m.id == mid)
+            const olds = mcus.filter(m => m.id == mid)
             olds.forEach(s => Object.assign(s, mcu))
-            if (olds.length <= 0) mcus.value.push(mcu)
+            if (olds.length <= 0) mcus.push(mcu)
 
             return { data: mcu, error: undefined }
         }
@@ -78,9 +78,9 @@ export const useMcu = (key: string = "mcus") => {
             const url = `/api/user/greenhouse/${gid}/mcu/${mcu.id}`
             const res = await $fetch<Mcu>(url, { method: "PATCH", body: mcu })
 
-            const olds = mcus.value.filter((m) => m.id == mcu.id)
+            const olds = mcus.filter((m) => m.id == mcu.id)
             olds.forEach((o) => Object.assign(o, res))
-            if (olds.length <= 0) mcus.value.push(res)
+            if (olds.length <= 0) mcus.push(res)
             
             return { data: res, error: undefined }
         }
@@ -99,9 +99,9 @@ export const useMcu = (key: string = "mcus") => {
             const url = `/api/user/greenhouse/${gid}/mcu/${mid}`
             await $fetch(url, { method: "DELETE" })
                 
-            const data = mcus.value.filter((m) => m.id != mid)
-            mcus.value.splice(0, mcus.value.length)
-            mcus.value.push(...data)
+            const data = mcus.filter((m) => m.id != mid)
+            mcus.splice(0, mcus.length)
+            mcus.push(...data)
 
             return { data: undefined, error: undefined }
         }
@@ -120,4 +120,4 @@ export const useMcu = (key: string = "mcus") => {
         updateMcu,
         deleteMcu,
     }
-}
+})

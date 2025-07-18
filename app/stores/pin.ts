@@ -2,10 +2,10 @@ import type { Pin, PinCreate, PinUpdate } from "~~/shared/schema/pin"
 
 //
 
-export const usePin = (key: string = "pins") => {
+export const usePinStore = defineStore("pins", () => {
     // --- States
-    const pins = useState<Pin[]>(key, () => [])
-    const hydrated = useState<boolean>(`${key}-hydrated`, () => false)
+    const pins = reactive<Pin[]>([])
+    const hydrated = ref<boolean>(false)
     
     // --- Actions
     /** 
@@ -15,13 +15,13 @@ export const usePin = (key: string = "pins") => {
      */
     const hydratePin = async (gid: number, mid?: number, force: boolean = false): Promise<SafeResult<Pin[]>> => {
         try {
-            if (hydrated.value && !force) return { data: pins.value, error: undefined }
+            if (hydrated.value && !force) return { data: pins, error: undefined }
             const url = `/api/user/greenhouse/${gid}/mcu` + (mid ? `/${mid}` : '') + '/pin'
             const requestFetch = useRequestFetch()
             const res = await requestFetch<Pin[]>(url)
             
-            pins.value.splice(0, pins.value.length)
-            pins.value.push(...res)
+            pins.splice(0, pins.length)
+            pins.push(...res)
 
             hydrated.value = true
             return { data: res, error: undefined }
@@ -41,7 +41,7 @@ export const usePin = (key: string = "pins") => {
             const url = `/api/user/greenhouse/${gid}/mcu/${mid}/pin`
             const res = await $fetch<Pin>(url, { method: "POST", body: [pin] })
             
-            pins.value.push(res)
+            pins.push(res)
             return { data: res, error: undefined }
         }
         catch (err) {
@@ -61,9 +61,9 @@ export const usePin = (key: string = "pins") => {
             const requestFetch = useRequestFetch()
             const pin = await requestFetch<Pin>(url)
             
-            const olds = pins.value.filter(p => p.id == pid)
+            const olds = pins.filter(p => p.id == pid)
             olds.forEach(s => Object.assign(s, pin))
-            if (olds.length <= 0) pins.value.push(pin)
+            if (olds.length <= 0) pins.push(pin)
 
             return { data: pin, error: undefined }
         }
@@ -82,9 +82,9 @@ export const usePin = (key: string = "pins") => {
             const url = `/api/user/greenhouse/${gid}/mcu/${mid}/pin/${pin.id}`
             const res = await $fetch<Pin>(url, { method: "PATCH", body: pin })
 
-            const olds = pins.value.filter((p) => p.id == pin.id)
+            const olds = pins.filter((p) => p.id == pin.id)
             olds.forEach((o) => Object.assign(o, res))
-            if (olds.length <= 0) pins.value.push(res)
+            if (olds.length <= 0) pins.push(res)
             
             return { data: res, error: undefined }
         }
@@ -104,9 +104,9 @@ export const usePin = (key: string = "pins") => {
             const url = `/api/user/greenhouse/${gid}/mcu/${mid}/pin/${pid}`
             await $fetch(url, { method: "DELETE" })
             
-            const data = pins.value.filter((p) => p.id != pid)
-            pins.value.splice(0, pins.value.length)
-            pins.value.push(...data)
+            const data = pins.filter((p) => p.id != pid)
+            pins.splice(0, pins.length)
+            pins.push(...data)
 
             return { data: undefined, error: undefined }
         }
@@ -125,4 +125,4 @@ export const usePin = (key: string = "pins") => {
         updatePin,
         deletePin,
     }
-}
+})
