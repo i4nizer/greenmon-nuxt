@@ -38,13 +38,13 @@
 						link
 						title="Pins"
 						prepend-icon="mdi-sine-wave"
-						:to="`/user/greenhouse/${gid}/mcu/${mid}/pins`"
+						:to="`/user/greenhouse/${gid}/mcu/${mid}/pin`"
 					></v-list-item>
 					<v-list-item
 						link
 						title="Sensors"
 						prepend-icon="mdi-thermometer"
-						:to="`/user/greenhouse/${gid}/mcu/${mid}/sensors`"
+						:to="`/user/greenhouse/${gid}/mcu/${mid}/sensor`"
 					></v-list-item>
 				</v-list>
 				<template #append>
@@ -96,7 +96,8 @@ const { user, dehydrate } = authStore
 
 // --- Sign Out
 const signOut = async () => {
-	await $fetch("/api/auth/sign-out", { method: "POST" }).catch((err) => import.meta.dev && console.error(err))
+    await $fetch("/api/auth/sign-out", { method: "POST" })
+        .catch((err) => import.meta.dev && console.error(err))
 
 	dehydrate()
 	await navigateTo("/auth/sign-in")
