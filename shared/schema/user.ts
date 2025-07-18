@@ -14,6 +14,7 @@ const UserSchema = z.object({
 	updatedAt: z.date(),
 })
 
+const UserSafeSchema = UserSchema.omit({ password: true })
 const UserSignUpSchema = UserSchema.pick({ name: true, email: true, password: true })
 const UserSignInSchema = UserSchema.pick({ email: true, password: true })
 const UserEmailSchema = UserSchema.pick({ email: true })
@@ -26,6 +27,7 @@ const UserAccountSchema = UserSchema.pick({ name: true, email: true, phone: true
 //
 
 type User = z.infer<typeof UserSchema>
+type UserSafe = z.infer<typeof UserSafeSchema>
 type UserSignUp = z.infer<typeof UserSignUpSchema>
 type UserSignIn = z.infer<typeof UserSignInSchema>
 type UserEmail = z.infer<typeof UserEmailSchema>
@@ -36,6 +38,7 @@ type UserAccount = z.infer<typeof UserAccountSchema>
 
 export {
 	UserSchema,
+	UserSafeSchema,
 	UserSignUpSchema,
 	UserSignInSchema,
 	UserEmailSchema,
@@ -45,6 +48,7 @@ export {
 
 export type {
 	User,
+	UserSafe,
 	UserSignUp,
 	UserSignIn,
 	UserEmail,
