@@ -1,8 +1,18 @@
 <template>
-	<VeeForm class="bg-green-darken-4 pa-7" :validation-schema #="{ meta }" @submit="create">
+	<VeeForm 
+		class="bg-green-darken-4 pa-7" 
+		:validation-schema 
+		#="{ meta }" 
+		@submit="onSubmit"
+	>
 		<h3>Create Greenhouse</h3>
 		<span class="text-grey">Please provide the greenhouse details.</span>
-		<v-alert v-if="error" type="error" class="my-2" :title="error"></v-alert>
+		<v-alert 
+			v-if="error" 
+			type="error" 
+			class="my-2" 
+			:title="error"
+		></v-alert>
 		<VeeField name="name" #="{ field, errorMessage }">
 			<v-text-field
 				label="Name"
@@ -32,7 +42,7 @@
 </template>
 
 <script setup lang="ts">
-import { GreenhouseCreateSchema, type GreenhouseCreate } from "~~/shared/schema/greenhouse"
+import { GreenhouseCreateSchema, type Greenhouse, type GreenhouseCreate } from "~~/shared/schema/greenhouse"
 
 //
 
@@ -40,11 +50,31 @@ import { GreenhouseCreateSchema, type GreenhouseCreate } from "~~/shared/schema/
 const validationSchema = toTypedSchema(GreenhouseCreateSchema)
 
 // --- Data Binding
-const emit = defineEmits<{ submit: [greenhouse: GreenhouseCreate] }>()
-const props = defineProps<{ error?: string; loading?: boolean }>()
+const emit = defineEmits<{ error: [msg: string], submit: [data: GreenhouseCreate], success: [result: Greenhouse] }>()
 
-// --- Pass Invoke
-const create = (values: any) => emit("submit", values as GreenhouseCreate)
+// --- State
+const error = ref<string>()
+const loading = ref<boolean>(false)
+
+// --- Store
+const { createGreenhouse } = useGreenhouseStore()
+
+// --- Handle
+const onSubmit = async (values: any, event: any) => {
+	error.value = undefined
+	loading.value = true
+	emit("submit", values as GreenhouseCreate)
+
+	const { data, error: err, success } = await createGreenhouse(values as GreenhouseCreate)
+	error.value = err
+
+	loading.value = false
+	if (success) {
+		event?.resetForm()
+		emit("success", data)
+	}
+	else emit("error", err)
+}
 
 //
 </script>
