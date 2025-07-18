@@ -39,10 +39,12 @@ export const usePinStore = defineStore("pins", () => {
     const createPin = async (gid: number, mid: number, pin: PinCreate): Promise<SafeResult<Pin>> => {
         try {
             const url = `/api/user/greenhouse/${gid}/mcu/${mid}/pin`
-            const res = await $fetch<Pin>(url, { method: "POST", body: [pin] })
+            const res = await $fetch<Pin[]>(url, { method: "POST", body: [pin] })
             
-            pins.push(res)
-            return { success: true, data: res, error: undefined }
+            pins.push(...res)
+            const data = res.at(0)
+            if (data) return { success: true, data, error: undefined }
+            else return { success: false, data: undefined, error: "Something went wrong." }
         }
         catch (err) {
             const error = (err as typeof err & { statusMessage?: string })

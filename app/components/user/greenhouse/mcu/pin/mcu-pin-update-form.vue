@@ -1,8 +1,19 @@
 <template>
-	<VeeForm class="bg-green-darken-4 pa-7" :initial-values="pin" :validation-schema #="{ meta }" @submit="update">
+	<VeeForm 
+		class="bg-green-darken-4 pa-7" 
+		:initial-values="pin" 
+		:validation-schema 
+		#="{ meta }" 
+		@submit="onSubmit"
+	>
 		<h3>Update Pin</h3>
 		<span class="text-grey">Please provide the pin details.</span>
-		<v-alert v-if="error" type="error" class="my-2" :title="error"></v-alert>
+		<v-alert 
+			v-if="error" 
+			type="error" 
+			class="my-2" 
+			:title="error"
+		></v-alert>
 		<VeeField name="id" #="{ field }">
 			<input type="hidden" v-model="field.value" />
 		</VeeField>
@@ -29,9 +40,9 @@
 		</VeeField>
 		<VeeField name="number" #="{ field, errorMessage }">
 			<v-number-input
+				type="number"
 				label="Number"
 				aria-autocomplete="both"
-				v-model="field.value"
 				:="field"
 				:error-messages="errorMessage ? [errorMessage] : []"
 			></v-number-input>
@@ -48,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-import { PinUpdateSchema, type PinUpdate } from "~~/shared/schema/pin"
+import { PinUpdateSchema, type Pin, type PinUpdate } from "~~/shared/schema/pin"
 
 //
 
@@ -56,11 +67,32 @@ import { PinUpdateSchema, type PinUpdate } from "~~/shared/schema/pin"
 const validationSchema = toTypedSchema(PinUpdateSchema)
 
 // --- Data Binding
-const emit = defineEmits<{ submit: [pin: PinUpdate] }>()
-const props = defineProps<{ pin: PinUpdate; error?: string; loading?: boolean }>()
+const emit = defineEmits<{ error: [msg: string], submit: [pin: PinUpdate], success: [result: Pin] }>()
+const props = defineProps<{ gid: number, mid: number, pin: PinUpdate }>()
 
-// --- Pass Invoke
-const update = (values: any) => emit("submit", values as PinUpdate)
+// --- State
+const error = ref<string>()
+const loading = ref(false)
+
+// --- Store
+const { updatePin } = usePinStore()
+
+// --- Handle
+const onSubmit = async (values: any, event: any) => {
+	error.value = undefined
+	loading.value = true
+	emit("submit", values as PinUpdate)
+
+	const { data, error: err, success } = await updatePin(props.gid, props.mid, values)
+	error.value = err
+	loading.value = false
+
+	if (success) {
+		event?.resetForm()
+		emit("success", data)
+	}
+	else emit("error", err)
+}
 
 //
 </script>

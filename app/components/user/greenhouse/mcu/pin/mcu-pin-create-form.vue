@@ -4,11 +4,16 @@
 		:initial-values="{ type: 'Digital', mode: 'Unset', number: -1 }"
 		:validation-schema
 		#="{ meta }"
-		@submit="create"
+		@submit="onSubmit"
 	>
 		<h3>Create Pin</h3>
 		<span class="text-grey">Please provide the pin details.</span>
-		<v-alert v-if="error" type="error" class="my-2" :title="error"></v-alert>
+		<v-alert 
+			v-if="error" 
+			type="error" 
+			class="my-2" 
+			:title="error"
+		></v-alert>
 		<VeeField name="type" #="{ field, errorMessage }">
 			<v-select
 				label="Type"
@@ -51,7 +56,7 @@
 </template>
 
 <script setup lang="ts">
-import { PinCreateSchema, type PinCreate } from "~~/shared/schema/pin"
+import { PinCreateSchema, type Pin, type PinCreate } from "~~/shared/schema/pin"
 
 //
 
@@ -59,11 +64,32 @@ import { PinCreateSchema, type PinCreate } from "~~/shared/schema/pin"
 const validationSchema = toTypedSchema(PinCreateSchema)
 
 // --- Data Binding
-const emit = defineEmits<{ submit: [pin: PinCreate] }>()
-const props = defineProps<{ error?: string; loading?: boolean }>()
+const emit = defineEmits<{ error: [msg: string], submit: [data: PinCreate], success: [result: Pin] }>()
+const props = defineProps<{ gid: number, mid: number }>()
 
-// --- Pass Invoke
-const create = (values: any) => emit("submit", values as PinCreate)
+// --- State
+const error = ref<string>()
+const loading = ref(false)
+
+// --- Store
+const { createPin } = usePinStore()
+
+// --- Handle
+const onSubmit = async (values: any, event: any) => {
+	error.value = undefined
+	loading.value = true
+	emit("submit", values as PinCreate)
+
+	const { data, error: err, success } = await createPin(props.gid, props.mid, values)
+	error.value = err
+	loading.value = false
+
+	if (success) {
+		event?.resetForm()
+		emit("success", data)
+	}
+	else emit("error", err)
+}
 
 //
 </script>
