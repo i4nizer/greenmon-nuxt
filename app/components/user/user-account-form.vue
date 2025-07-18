@@ -1,6 +1,16 @@
 <template>
-	<VeeForm :initial-values="props.user" :validation-schema="validationSchema" #="{ meta }" @submit="save">
-		<v-alert v-if="error" type="error" class="my-2" :title="error"></v-alert>
+	<VeeForm 
+		:initial-values="props.user"
+		:validation-schema 
+		#="{ meta }" 
+		@submit="onSubmit"
+	>
+		<v-alert 
+			v-if="error" 
+			type="error" 
+			class="my-2" 
+			:title="error"
+		></v-alert>
 		<VeeField name="name" #="{ field, errorMessage }">
 			<v-text-field
 				label="Name"
@@ -44,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-import { UserAccountSchema, type UserAccount } from "~~/shared/schema/user"
+import { UserAccountSchema, type UserAccount, type UserSafe } from "~~/shared/schema/user"
 
 //
 
@@ -52,11 +62,28 @@ import { UserAccountSchema, type UserAccount } from "~~/shared/schema/user"
 const validationSchema = toTypedSchema(UserAccountSchema)
 
 // --- Data Binding
-const emit = defineEmits<{ submit: [user: UserAccount] }>()
-const props = defineProps<{ user?: UserAccount; error?: string; loading?: boolean }>()
+const emit = defineEmits<{ error: [msg: string], submit: [data: UserAccount], success: [result: UserSafe] }>()
+const props = defineProps<{ user?: UserAccount, action?: string }>()
 
-// --- Pass Invoke
-const save = (values: any) => emit("submit", values as UserAccount)
+// --- States
+const error = ref<string>()
+const loading = ref<boolean>(false)
+
+// --- Handle Submission
+const onSubmit = async (values: any, event: any) => {
+	error.value = undefined
+	loading.value = true
+	emit("submit", values as UserAccount)
+
+	const url = props.action ?? `/api/user/account`
+	await $fetch<UserSafe>(url, { method: "POST", body: values })
+		.then(res => emit("success", res))
+		.catch(err => (error.value = err?.statusMessage ?? "Something went wrong."))
+
+	if (error.value) emit("error", error.value)
+	loading.value = false
+	event?.resetForm({ values: props.user })
+}
 
 //
 </script>

@@ -14,7 +14,11 @@
 					</v-card-title>
 					<v-card-subtitle class="text-wrap">Manage your account settings and preferences.</v-card-subtitle>
 					<v-card-text>
-						<UserAccountForm :user :error :loading @submit="saveSettings" />
+						<UserAccountForm 
+							:user="authStore.user"
+							:action="`/api/user/account`"
+							@success="onSaveUserAccount" 
+						/>
 					</v-card-text>
 				</v-card>
 			</v-col>
@@ -23,30 +27,20 @@
 </template>
 
 <script setup lang="ts">
-import type { UserAccount } from "~~/shared/schema/user"
+import type { UserSafe } from "~~/shared/schema/user"
 
 //
 
 // --- Init from Auth State
 const authStore = useAuthStore()
-const { name, email, phone } = authStore.user
-const user = reactive({ name, email, phone })
 
-// --- Bind from store
-watch(authStore.user, (nv) => Object.assign(user, nv))
+// --- Notif
+const { append: appendSnack } = useSnackbarStore()
 
-// --- Update logic
-const error = ref<string>()
-const loading = ref<boolean>()
-
-const saveSettings = async (data: UserAccount) => {
-	error.value = undefined
-	loading.value = true
-
-	await $fetch("/api/user/account", { method: "POST", body: data })
-		.then((res) => Object.assign(authStore.user, res.user))
-		.catch((err) => (error.value = err?.statusMessage))
-		.finally(() => (loading.value = false))
+// --- Sync User
+const onSaveUserAccount = (data: UserSafe) => {
+	Object.assign(authStore.user, data)
+	appendSnack({ text: "User account updated successfully.", color: "success" })
 }
 
 //
