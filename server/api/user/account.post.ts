@@ -1,5 +1,5 @@
 import { User } from "~~/server/models"
-import { UserAccountSchema } from "~~/shared/schema/user"
+import { UserAccountSchema, UserSafeSchema } from "~~/shared/schema/user"
 
 //
 
@@ -12,11 +12,11 @@ export default defineEventHandler(async (event) => {
 	if (!bodyResult.success) return sendError(event, createError({ statusCode: 400, statusMessage: bodyResult.error.message }))
 	const body = bodyResult.data
 
-	// --- Update
-	const [rows] = await User.update({ name: body.name, phone: body.phone }, { where: { id: payload.id } })
+	// --- Find & Update
+	const user = await User.findByPk(payload.id)
+	if (!user) return sendError(event, createError({ statusCode: 400, statusMessage: "User not found" }))
+	await user.update(body)
 
-	// --- No Updates
-	if (rows <= 0) return sendError(event, createError({ statusCode: 400, statusMessage: "User not found." }))
-
-	return { user: body }
+	// --- Send Result
+	return UserSafeSchema.parse(user.dataValues)
 })
