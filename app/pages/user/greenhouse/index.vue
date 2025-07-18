@@ -84,7 +84,7 @@ const {
 
 const fetchGreenhouse = async () => {
 	const { error } = await hydrateGreenhouse()
-	if (error) appendMsg({ text: "Fetch greenhouse failed.", color: "error" })
+	if (error) appendMsg({ text: error, color: "error" })
 }
 
 onBeforeMount(async () => await fetchGreenhouse())
@@ -146,7 +146,7 @@ const onDeleteGreenhouse = async (id: number) => {
 	greenhouseCardLoadingIds.push(id)
 
 	const { error } = await deleteGreenhouse(id)
-	if (error) appendMsg({ text: "Update greenhouse failed.", color: "error" })
+	if (error) appendMsg({ text: error, color: "error" })
 
 	const idx = greenhouseCardLoadingIds.findIndex((i) => i == id)
 	if (idx != -1) greenhouseCardLoadingIds.splice(idx, 1)

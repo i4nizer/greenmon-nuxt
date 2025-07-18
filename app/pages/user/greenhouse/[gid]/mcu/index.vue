@@ -15,7 +15,7 @@
 						</v-btn>
 					</template>
 					<template #default>
-						<GreenhouseMcuCreateForm :error="createError" :loading="createLoading" @submit="createMcu" />
+						<GreenhouseMcuCreateForm :error="createError" :loading="createLoading" @submit="onCreateMcu" />
 					</template>
 				</v-dialog>
 			</v-col>
@@ -28,7 +28,7 @@
 						:mcu="updateData"
 						:error="updateError"
 						:loading="updateLoading"
-						@submit="updateMcu"
+						@submit="onUpdateMcu"
 					/>
 				</v-dialog>
 			</v-col>
@@ -37,9 +37,9 @@
 				<GreenhouseMcuCard
 					:mcu
 					:loading="mcuCardLoadingIds.includes(mcu.id)"
-					@view="viewMcu"
-					@edit="editMcu"
-					@delete="deleteMcu"
+					@view="onViewMcu"
+					@edit="onEditMcu"
+					@delete="onDeleteMcu"
 				/>
 			</v-col>
 			<!-- Fallback/emptystate when no mcu -->
@@ -51,26 +51,38 @@
 </template>
 
 <script setup lang="ts">
+import z from "zod"
 import type { Mcu, McuCreate, McuUpdate } from "~~/shared/schema/mcu"
 
 //
 
+// --- Auth for Prefix
+const { user } = useAuthStore()
+
 // --- Notif
 const { append: appendMsg } = useSnackbarStore()
 
-// --- Fetch Mcus
+// --- Transform Route Params
 const route = useRoute()
-const { gid } = route.params
-const headers = useRequestHeaders(["cookie"])
-const { data: mcus, refresh } = await useFetch<Mcu[]>(
-	`/api/user/greenhouse/${gid}/mcu`,
-	{ headers, lazy: true, deep: true }
-)
+const paramsSchema = z.object({ gid: z.coerce.number() })
+const { gid } = paramsSchema.parse(route.params)
 
-onBeforeMount(async () =>
-	await refresh()
-		.catch(() => appendMsg({ text: "Fetch microcontrollers failed.", color: "error" }))
-)
+// --- Fetch Mcus
+const {
+	mcus,
+	hydrateMcu,
+	createMcu,
+	updateMcu,
+	deleteMcu
+} = useMcu(`${user.id}-${gid}-mcus`)
+
+const fetchMcus = async () => {
+	const { error } = await hydrateMcu(gid)
+	if (error) appendMsg({ text: error, color: "error" })
+}
+
+onBeforeMount(async () => await fetchMcus())
+onServerPrefetch(async () => await fetchMcus())
 
 // --- Card Loading Indicator
 const mcuCardLoadingIds = reactive<number[]>([])
@@ -80,14 +92,12 @@ const createError = ref<string>()
 const createDialog = ref(false)
 const createLoading = ref(false)
 
-const createMcu = async (data: McuCreate) => {
+const onCreateMcu = async (data: McuCreate) => {
 	createError.value = undefined
 	createLoading.value = true
 
-	await $fetch(`/api/user/greenhouse/${gid}/mcu`, { method: "POST", body: data })
-		.then((res) => ({ ...res, createdAt: new Date(res.createdAt), updatedAt: new Date(res.updatedAt) }))
-		.then((mcu) => mcus.value?.push(mcu))
-		.catch((err) => (createError.value = err?.statusMessage ?? "Something went wrong."))
+	const { error } = await createMcu(gid, data)
+	createError.value = error
 
 	createDialog.value = false
 	createLoading.value = false
@@ -99,15 +109,13 @@ const updateError = ref<string>()
 const updateDialog = ref(false)
 const updateLoading = ref(false)
 
-const updateMcu = async (data: McuUpdate) => {
+const onUpdateMcu = async (data: McuUpdate) => {
 	updateError.value = undefined
 	updateLoading.value = true
 	mcuCardLoadingIds.push(data.id)
 
-	await $fetch(`/api/user/greenhouse/${gid}/mcu/${data.id}`, { method: "PATCH", body: data })
-		.then((res) => ({ mcu: mcus.value?.find((g) => g.id == res.id), res }))
-		.then(({ mcu, res }) => mcu && Object.assign(mcu, res))
-		.catch((err) => (updateError.value = err?.statusMessage ?? "Something went wrong."))
+	const { error } = await updateMcu(gid, data)
+	updateError.value = error
 
 	updateDialog.value = false
 	updateLoading.value = false
@@ -116,25 +124,23 @@ const updateMcu = async (data: McuUpdate) => {
 }
 
 // --- Mcu Card Navigations
-const viewMcu = async (id: number) => {
+const onViewMcu = async (id: number) => {
 	mcuCardLoadingIds.push(id)
 	await navigateTo(`/user/greenhouse/${gid}/mcu/${id}/pins`)
 	const idx = mcuCardLoadingIds.findIndex((i) => i == id)
 	if (idx != -1) mcuCardLoadingIds.splice(idx, 1)
 }
 
-const editMcu = (mcu: Mcu) => {
+const onEditMcu = (mcu: Mcu) => {
 	updateData.value = mcu
 	updateDialog.value = true
 }
 
-const deleteMcu = async (id: number) => {
+const onDeleteMcu = async (id: number) => {
 	mcuCardLoadingIds.push(id)
 
-	await $fetch(`/api/user/greenhouse/${gid}/mcu/${id}`, { method: "DELETE" })
-		.then(() => mcus.value?.findIndex((g) => g.id == id))
-		.then((idx) => idx && idx != -1 && mcus.value?.splice(idx, 1))
-		.catch((err) => appendMsg({ text: err?.statusMessage ?? "Something went wrong.", color: "error" }))
+	const { error } = await deleteMcu(gid, id)
+	if (error) appendMsg({ text: error, color: "error" })
 
 	const idx = mcuCardLoadingIds.findIndex((i) => i == id)
 	if (idx != -1) mcuCardLoadingIds.splice(idx, 1)
