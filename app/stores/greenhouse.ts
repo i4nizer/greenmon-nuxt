@@ -13,7 +13,7 @@ export const useGreenhouseStore = defineStore("greenhouses", () => {
      */
     const hydrateGreenhouse = async (force: boolean = false): Promise<SafeResult<Greenhouse[]>> => {
         try {
-            if (hydrated.value && !force) return { data: greenhouses, error: undefined }
+            if (hydrated.value && !force) return { success: true, data: greenhouses, error: undefined }
             const url = `/api/user/greenhouse`
             const requestFetch = useRequestFetch()
             const res = await requestFetch<Greenhouse[]>(url)
@@ -22,11 +22,11 @@ export const useGreenhouseStore = defineStore("greenhouses", () => {
             greenhouses.push(...res)
 
             hydrated.value = true
-            return { data: res, error: undefined }
+            return { success: true, data: res, error: undefined }
         }
         catch (err) {
             const error = (err as typeof err & { statusMessage?: string })
-            return { data: undefined, error: error?.statusMessage ?? "Something went wrong." }
+            return { success: false, data: undefined, error: error?.statusMessage ?? "Something went wrong." }
         }
     }
 
@@ -36,11 +36,11 @@ export const useGreenhouseStore = defineStore("greenhouses", () => {
             const res = await $fetch<Greenhouse>(url, { method: "POST", body: greenhouse })
             
             greenhouses.push(res)
-            return { data: res, error: undefined }
+            return { success: true, data: res, error: undefined }
         }
         catch (err) {
             const error = (err as typeof err & { statusMessage?: string })
-            return { data: undefined, error: error?.statusMessage ?? "Something went wrong." }
+            return { success: false, data: undefined, error: error?.statusMessage ?? "Something went wrong." }
         }
     }
     
@@ -57,11 +57,11 @@ export const useGreenhouseStore = defineStore("greenhouses", () => {
             olds.forEach(s => Object.assign(s, greenhouse))
             if (olds.length <= 0) greenhouses.push(greenhouse)
 
-            return { data: greenhouse, error: undefined }
+            return { success: true, data: greenhouse, error: undefined }
         }
         catch (err) {
             const error = (err as typeof err & { statusMessage?: string })
-            return { data: undefined, error: error?.statusMessage ?? "Something went wrong." }
+            return { success: false, data: undefined, error: error?.statusMessage ?? "Something went wrong." }
         }
     }
     
@@ -74,11 +74,11 @@ export const useGreenhouseStore = defineStore("greenhouses", () => {
             olds.forEach((o) => Object.assign(o, res))
             if (olds.length <= 0) greenhouses.push(res)
             
-            return { data: res, error: undefined }
+            return { success: true, data: res, error: undefined }
         }
         catch (err) {
             const error = (err as typeof err & { statusMessage?: string })
-            return { data: undefined, error: error?.statusMessage ?? "Something went wrong." }
+            return { success: false, data: undefined, error: error?.statusMessage ?? "Something went wrong." }
         }
     }
     
@@ -94,11 +94,11 @@ export const useGreenhouseStore = defineStore("greenhouses", () => {
             greenhouses.splice(0, greenhouses.length)
             greenhouses.push(...data)
 
-            return { data: undefined, error: undefined }
+            return { success: true, data: undefined, error: undefined }
         }
         catch (err) {
             const error = (err as typeof err & { statusMessage?: string })
-            return { data: undefined, error: error?.statusMessage ?? "Something went wrong." }
+            return { success: false, data: undefined, error: error?.statusMessage ?? "Something went wrong." }
         }
     }
     

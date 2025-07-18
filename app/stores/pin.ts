@@ -15,7 +15,7 @@ export const usePinStore = defineStore("pins", () => {
      */
     const hydratePin = async (gid: number, mid?: number, force: boolean = false): Promise<SafeResult<Pin[]>> => {
         try {
-            if (hydrated.value && !force) return { data: pins, error: undefined }
+            if (hydrated.value && !force) return { success: true, data: pins, error: undefined }
             const url = `/api/user/greenhouse/${gid}/mcu` + (mid ? `/${mid}` : '') + '/pin'
             const requestFetch = useRequestFetch()
             const res = await requestFetch<Pin[]>(url)
@@ -24,11 +24,11 @@ export const usePinStore = defineStore("pins", () => {
             pins.push(...res)
 
             hydrated.value = true
-            return { data: res, error: undefined }
+            return { success: true, data: res, error: undefined }
         }
         catch (err) {
             const error = (err as typeof err & { statusMessage?: string })
-            return { data: undefined, error: error?.statusMessage ?? "Something went wrong." }
+            return { success: false, data: undefined, error: error?.statusMessage ?? "Something went wrong." }
         }
     }
 
@@ -42,11 +42,11 @@ export const usePinStore = defineStore("pins", () => {
             const res = await $fetch<Pin>(url, { method: "POST", body: [pin] })
             
             pins.push(res)
-            return { data: res, error: undefined }
+            return { success: true, data: res, error: undefined }
         }
         catch (err) {
             const error = (err as typeof err & { statusMessage?: string })
-            return { data: undefined, error: error?.statusMessage ?? "Something went wrong." }
+            return { success: false, data: undefined, error: error?.statusMessage ?? "Something went wrong." }
         }
     }
     
@@ -65,11 +65,11 @@ export const usePinStore = defineStore("pins", () => {
             olds.forEach(s => Object.assign(s, pin))
             if (olds.length <= 0) pins.push(pin)
 
-            return { data: pin, error: undefined }
+            return { success: true, data: pin, error: undefined }
         }
         catch (err) {
             const error = (err as typeof err & { statusMessage?: string })
-            return { data: undefined, error: error?.statusMessage ?? "Something went wrong." }
+            return { success: false, data: undefined, error: error?.statusMessage ?? "Something went wrong." }
         }
     }
 
@@ -86,11 +86,11 @@ export const usePinStore = defineStore("pins", () => {
             olds.forEach((o) => Object.assign(o, res))
             if (olds.length <= 0) pins.push(res)
             
-            return { data: res, error: undefined }
+            return { success: true, data: res, error: undefined }
         }
         catch (err) {
             const error = (err as typeof err & { statusMessage?: string })
-            return { data: undefined, error: error?.statusMessage ?? "Something went wrong." }
+            return { success: false, data: undefined, error: error?.statusMessage ?? "Something went wrong." }
         }
     }
     
@@ -108,11 +108,11 @@ export const usePinStore = defineStore("pins", () => {
             pins.splice(0, pins.length)
             pins.push(...data)
 
-            return { data: undefined, error: undefined }
+            return { success: true, data: undefined, error: undefined }
         }
         catch (err) {
             const error = (err as typeof err & { statusMessage?: string })
-            return { data: undefined, error: error?.statusMessage ?? "Something went wrong." }
+            return { success: false, data: undefined, error: error?.statusMessage ?? "Something went wrong." }
         }
     }
     

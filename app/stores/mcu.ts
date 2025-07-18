@@ -14,7 +14,7 @@ export const useMcuStore = defineStore("mcus", () => {
      */
     const hydrateMcu = async (gid?: number, force: boolean = false): Promise<SafeResult<Mcu[]>> => {
         try {
-            if (hydrated.value && !force) return { data: mcus, error: undefined }
+            if (hydrated.value && !force) return { success: true, data: mcus, error: undefined }
             const url = `/api/user/greenhouse` + (gid ? `/${gid}` : '') + '/mcu'
             const requestFetch = useRequestFetch()
             const res = await requestFetch<Mcu[]>(url)
@@ -23,11 +23,11 @@ export const useMcuStore = defineStore("mcus", () => {
             mcus.push(...res)
 
             hydrated.value = true
-            return { data: res, error: undefined }
+            return { success: true, data: res, error: undefined }
         }
         catch (err) {
             const error = (err as typeof err & { statusMessage?: string })
-            return { data: undefined, error: error?.statusMessage ?? "Something went wrong." }
+            return { success: false, data: undefined, error: error?.statusMessage ?? "Something went wrong." }
         }
     }
 
@@ -40,11 +40,11 @@ export const useMcuStore = defineStore("mcus", () => {
             const res = await $fetch<Mcu>(url, { method: "POST", body: mcu })
             
             mcus.push(res)
-            return { data: res, error: undefined }
+            return { success: true, data: res, error: undefined }
         }
         catch (err) {
             const error = (err as typeof err & { statusMessage?: string })
-            return { data: undefined, error: error?.statusMessage ?? "Something went wrong." }
+            return { success: false, data: undefined, error: error?.statusMessage ?? "Something went wrong." }
         }
     }
     
@@ -62,11 +62,11 @@ export const useMcuStore = defineStore("mcus", () => {
             olds.forEach(s => Object.assign(s, mcu))
             if (olds.length <= 0) mcus.push(mcu)
 
-            return { data: mcu, error: undefined }
+            return { success: true, data: mcu, error: undefined }
         }
         catch (err) {
             const error = (err as typeof err & { statusMessage?: string })
-            return { data: undefined, error: error?.statusMessage ?? "Something went wrong." }
+            return { success: false, data: undefined, error: error?.statusMessage ?? "Something went wrong." }
         }
     }
 
@@ -82,11 +82,11 @@ export const useMcuStore = defineStore("mcus", () => {
             olds.forEach((o) => Object.assign(o, res))
             if (olds.length <= 0) mcus.push(res)
             
-            return { data: res, error: undefined }
+            return { success: true, data: res, error: undefined }
         }
         catch (err) {
             const error = (err as typeof err & { statusMessage?: string })
-            return { data: undefined, error: error?.statusMessage ?? "Something went wrong." }
+            return { success: false, data: undefined, error: error?.statusMessage ?? "Something went wrong." }
         }
     }
     
@@ -103,11 +103,11 @@ export const useMcuStore = defineStore("mcus", () => {
             mcus.splice(0, mcus.length)
             mcus.push(...data)
 
-            return { data: undefined, error: undefined }
+            return { success: true, data: undefined, error: undefined }
         }
         catch (err) {
             const error = (err as typeof err & { statusMessage?: string })
-            return { data: undefined, error: error?.statusMessage ?? "Something went wrong." }
+            return { success: false, data: undefined, error: error?.statusMessage ?? "Something went wrong." }
         }
     }
     
