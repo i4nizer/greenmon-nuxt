@@ -1,8 +1,18 @@
 <template>
-	<VeeForm class="bg-green-darken-4 pa-7" :validation-schema #="{ meta }" @submit="create">
+	<VeeForm 
+		class="bg-green-darken-4 pa-7" 
+		:validation-schema 
+		#="{ meta }" 
+		@submit="onSubmit"
+	>
 		<h3>Create Mcu</h3>
 		<span class="text-grey">Please provide the mcu details.</span>
-		<v-alert v-if="error" type="error" class="my-2" :title="error"></v-alert>
+		<v-alert 
+			v-if="error" 
+			type="error" 
+			class="my-2" 
+			:title="error"
+		></v-alert>
 		<VeeField name="name" #="{ field, errorMessage }">
 			<v-text-field
 				label="Name"
@@ -34,7 +44,7 @@
 </template>
 
 <script setup lang="ts">
-import { McuCreateSchema, type McuCreate } from "~~/shared/schema/mcu"
+import { McuCreateSchema, type Mcu, type McuCreate } from "~~/shared/schema/mcu"
 
 //
 
@@ -42,11 +52,32 @@ import { McuCreateSchema, type McuCreate } from "~~/shared/schema/mcu"
 const validationSchema = toTypedSchema(McuCreateSchema)
 
 // --- Data Binding
-const emit = defineEmits<{ submit: [mcu: McuCreate] }>()
-const props = defineProps<{ error?: string; loading?: boolean }>()
+const emit = defineEmits<{ error: [msg: string], submit: [data: McuCreate], success: [result: Mcu] }>()
+const props = defineProps<{ gid: number }>()
 
-// --- Pass Invoke
-const create = (values: any) => emit("submit", values as McuCreate)
+// --- State
+const error = ref<string>()
+const loading = ref<boolean>(false)
+
+// --- Store
+const { createMcu } = useMcuStore()
+
+// --- Handle
+const onSubmit = async (values: any, event: any) => {
+	error.value = undefined
+	loading.value = true
+	emit("submit", values as McuCreate)
+
+	const { data, error: err, success } = await createMcu(props.gid, values)
+	error.value = err
+
+	loading.value = false
+	if (success) {
+		event?.resetForm()
+		emit("success", data)
+	}
+	else emit("error", err)
+}
 
 //
 </script>

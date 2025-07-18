@@ -6,17 +6,27 @@
 		</v-card-title>
 		<v-card-text class="text-grey">{{ mcu?.label }}</v-card-text>
 		<v-card-actions>
-			<v-btn color="green" :disabled="loading" @click="emit('view', mcu.id)">
+			<v-btn 
+				color="green" 
+				:disabled="loading" 
+				@click="onView"
+			>
 				<v-icon class="mr-1">mdi-cog</v-icon>
 				<span v-if="$vuetify.display.smAndUp">View</span>
 			</v-btn>
-			<slot name="edit-dialog" :="{ props: mcu }">
-				<v-btn color="blue" :disabled="loading" @click="emit('edit', mcu)">
-					<v-icon class="mr-1">mdi-pencil</v-icon>
-					<span v-if="$vuetify.display.smAndUp">Edit</span>
-				</v-btn>
-			</slot>
-			<v-btn color="red" :disabled="loading" @click="emit('delete', mcu.id)">
+			<v-btn 
+				color="blue" 
+				:disabled="loading" 
+				@click="onEdit"
+			>
+				<v-icon class="mr-1">mdi-pencil</v-icon>
+				<span v-if="$vuetify.display.smAndUp">Edit</span>
+			</v-btn>
+			<v-btn 
+				color="red" 
+				:disabled="loading" 
+				@click="onDelete"
+			>
 				<v-icon class="mr-1">mdi-delete</v-icon>
 				<span v-if="$vuetify.display.smAndUp">Delete</span>
 			</v-btn>
@@ -30,8 +40,38 @@ import { type Mcu } from "~~/shared/schema/mcu"
 //
 
 // --- Data Binding
-const emit = defineEmits<{ view: [id: number]; edit: [mcu: Mcu]; delete: [id: number] }>()
-const props = defineProps<{ mcu: Mcu; loading?: boolean }>()
+const emit = defineEmits<{ error: [msg: string], view: [id: number]; edit: [mcu: Mcu]; delete: [id: number] }>()
+const props = defineProps<{ gid: number, mcu: Mcu, viewLink: string }>()
+
+// --- State
+const loading = ref(false)
+
+// --- Store
+const { deleteMcu } = useMcuStore()
+
+// --- Actions
+const onView = async () => {
+	loading.value = true
+	emit("view", props.mcu.id)
+	await navigateTo(props.viewLink)
+	loading.value = false
+}
+
+const onEdit = async () => {
+	loading.value = true
+	emit("edit", props.mcu)
+	loading.value = false
+}
+
+const onDelete = async () => {
+	loading.value = true
+
+	const { error: err, success } = await deleteMcu(props.gid, props.mcu.id)
+
+	loading.value = false
+	if (!success) emit("error", err)
+	else emit("delete", props.mcu.id)
+}
 
 //
 </script>
