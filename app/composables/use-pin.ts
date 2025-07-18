@@ -17,8 +17,8 @@ export const usePin = (key: string = "pins") => {
         try {
             if (hydrated.value && !force) return { data: pins.value, error: undefined }
             const url = `/api/user/greenhouse/${gid}/mcu` + (mid ? `/${mid}` : '') + '/pin'
-            const headers = useRequestHeaders(["cookie"])
-            const res = await $fetch<Pin[]>(url, { headers })
+            const requestFetch = useRequestFetch()
+            const res = await requestFetch<Pin[]>(url)
             
             pins.value.splice(0, pins.value.length)
             pins.value.push(...res)
@@ -39,7 +39,7 @@ export const usePin = (key: string = "pins") => {
     const createPin = async (gid: number, mid: number, pin: PinCreate): Promise<SafeResult<Pin>> => {
         try {
             const url = `/api/user/greenhouse/${gid}/mcu/${mid}/pin`
-            const res = await $fetch<Pin>(url, { method: "POST", body: pin })
+            const res = await $fetch<Pin>(url, { method: "POST", body: [pin] })
             
             pins.value.push(res)
             return { data: res, error: undefined }
@@ -58,8 +58,8 @@ export const usePin = (key: string = "pins") => {
     const retrievePin = async (gid: number, mid: number, pid: number): Promise<SafeResult<Pin>> => {
         try {
             const url = `/api/user/greenhouse/${gid}/mcu/${mid}/pin/${pid}`
-            const headers = useRequestHeaders(["cookie"])
-            const pin = await $fetch<Pin>(url, { headers })
+            const requestFetch = useRequestFetch()
+            const pin = await requestFetch<Pin>(url)
             
             const olds = pins.value.filter(p => p.id == pid)
             olds.forEach(s => Object.assign(s, pin))

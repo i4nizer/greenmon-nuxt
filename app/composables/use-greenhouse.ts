@@ -15,8 +15,8 @@ export const useGreenhouse = (key: string = "greenhouses") => {
         try {
             if (hydrated.value && !force) return { data: greenhouses.value, error: undefined }
             const url = `/api/user/greenhouse`
-            const headers = useRequestHeaders(["cookie"])
-            const res = await $fetch<Greenhouse[]>(url, { headers })
+            const requestFetch = useRequestFetch()
+            const res = await requestFetch<Greenhouse[]>(url)
             
             greenhouses.value.splice(0, greenhouses.value.length)
             greenhouses.value.push(...res)
@@ -50,8 +50,8 @@ export const useGreenhouse = (key: string = "greenhouses") => {
     const retrieveGreenhouse = async (gid: number): Promise<SafeResult<Greenhouse>> => {
         try {
             const url = `/api/user/greenhouse/${gid}`
-            const headers = useRequestHeaders(["cookie"])
-            const greenhouse = await $fetch<Greenhouse>(url, { headers })
+            const requestFetch = useRequestFetch()
+            const greenhouse = await requestFetch<Greenhouse>(url)
             
             const olds = greenhouses.value.filter(g => g.id == gid)
             olds.forEach(s => Object.assign(s, greenhouse))

@@ -18,8 +18,8 @@ export const useOutput = (key: string = "outputs") => {
         try {
             if (hydrated.value && !force) return { data: outputs.value, error: undefined }
             const url = `/api/user/greenhouse/${gid}/mcu/${mid}/sensor` + (sid ? `/${sid}` : '') + "/output"
-            const headers = useRequestHeaders(["cookie"])
-            const res = await $fetch<Output[]>(url, { headers })
+            const requestFetch = useRequestFetch()
+            const res = await requestFetch<Output[]>(url)
             
             outputs.value.splice(0, outputs.value.length)
             outputs.value.push(...res)
@@ -61,8 +61,8 @@ export const useOutput = (key: string = "outputs") => {
     const retrieveOutput = async (gid: number, mid: number, sid: number, oid: number): Promise<SafeResult<Output>> => {
         try {
             const url = `/api/user/greenhouse/${gid}/mcu/${mid}/sensor/${sid}/output/${oid}`
-            const headers = useRequestHeaders(["cookie"])
-            const output = await $fetch<Output>(url, { headers })
+            const requestFetch = useRequestFetch()
+            const output = await requestFetch<Output>(url)
             
             const olds = outputs.value.filter(o => o.id == oid)
             olds.forEach(s => Object.assign(s, output))

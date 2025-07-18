@@ -16,8 +16,8 @@ export const useMcu = (key: string = "mcus") => {
         try {
             if (hydrated.value && !force) return { data: mcus.value, error: undefined }
             const url = `/api/user/greenhouse` + (gid ? `/${gid}` : '') + '/mcu'
-            const headers = useRequestHeaders(["cookie"])
-            const res = await $fetch<Mcu[]>(url, { headers })
+            const requestFetch = useRequestFetch()
+            const res = await requestFetch<Mcu[]>(url)
             
             mcus.value.splice(0, mcus.value.length)
             mcus.value.push(...res)
@@ -55,8 +55,8 @@ export const useMcu = (key: string = "mcus") => {
     const retrieveMcu = async (gid: number, mid: number): Promise<SafeResult<Mcu>> => {
         try {
             const url = `/api/user/greenhouse/${gid}/mcu/${mid}`
-            const headers = useRequestHeaders(["cookie"])
-            const mcu = await $fetch<Mcu>(url, { headers })
+            const requestFetch = useRequestFetch()
+            const mcu = await requestFetch<Mcu>(url)
             
             const olds = mcus.value.filter(m => m.id == mid)
             olds.forEach(s => Object.assign(s, mcu))

@@ -17,8 +17,8 @@ export const useSensor = (key: string = "sensors") => {
         try {
             if (hydrated.value && !force) return { data: sensors.value, error: undefined }
             const url = `/api/user/greenhouse/${gid}/mcu` + (mid ? `/${mid}` : '') + '/sensor'
-            const headers = useRequestHeaders(["cookie"])
-            const res = await $fetch<Sensor[]>(url, { headers })
+            const requestFetch = useRequestFetch()
+            const res = await requestFetch<Sensor[]>(url)
             
             sensors.value.splice(0, sensors.value.length)
             sensors.value.push(...res)
@@ -58,8 +58,8 @@ export const useSensor = (key: string = "sensors") => {
     const retrieveSensor = async (gid: number, mid: number, sid: number): Promise<SafeResult<Sensor>> => {
         try {
             const url = `/api/user/greenhouse/${gid}/mcu/${mid}/sensor/${sid}`
-            const headers = useRequestHeaders(["cookie"])
-            const sensor = await $fetch<Sensor>(url, { headers })
+            const requestFetch = useRequestFetch()
+            const sensor = await requestFetch<Sensor>(url)
             
             const olds = sensors.value.filter(s => s.id == sid)
             olds.forEach(s => Object.assign(s, sensor))
